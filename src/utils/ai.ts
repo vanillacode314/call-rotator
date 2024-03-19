@@ -153,7 +153,6 @@ async function getArgs(func: string, argtypes: (TArgtype | `${TArgtype}[]`)[], o
 				const argtype = argtypes[index]
 				const isArrayType = argtype.endsWith('[]')
 				const values = isArrayType ? value.slice(1, -1).split(',') : [value]
-				console.log(argtype)
 
 				switch (isArrayType ? (argtype.slice(0, -2) as TArgtype) : argtype) {
 					case 'string':

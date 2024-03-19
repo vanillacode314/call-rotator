@@ -13,3 +13,5 @@ export function AllModals() {
 		</>
 	)
 }
+
+export default AllModals

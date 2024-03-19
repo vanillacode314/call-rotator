@@ -1,4 +1,5 @@
-import { SQLocal } from 'sqlocal'
+async function getSQLocalDB() {
+	return await import('~/lib/db/sqlocal.client')
+}
 
-export const db = new SQLocal('database.sqlite3')
-export const { sql, transaction } = db
+export { getSQLocalDB }

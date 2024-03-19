@@ -1,9 +1,12 @@
-import { sql, transaction } from '.'
+import { isServer } from 'solid-js/web'
+import { getSQLocalDB } from '.'
 
 const VALID_TABLES = ['contacts', 'folders', 'files'] as const
 
 export async function initDB() {
 	await pruneDB()
+	if (isServer) return
+	const { transaction } = await getSQLocalDB()
 	await transaction((sql) => [
 		sql`CREATE TABLE IF NOT EXISTS contacts (
       phone TEXT PRIMARY KEY,
@@ -27,6 +30,8 @@ export async function initDB() {
 }
 
 export async function pruneDB() {
+	if (isServer) return
+	const { sql } = await getSQLocalDB()
 	const tables =
 		await sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`
 	const tableNames = tables.map((row) => row.name).filter((name) => !VALID_TABLES.includes(name))

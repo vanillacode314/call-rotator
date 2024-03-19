@@ -11,7 +11,8 @@
     "noEmit": true,
     "strict": true,
     "types": [
-      "vinxi/client"
+      "vinxi/client",
+      "vite/client"
     ],
     "isolatedModules": true,
     "paths": {

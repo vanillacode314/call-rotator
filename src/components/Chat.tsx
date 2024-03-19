@@ -1,5 +1,5 @@
 import { makePersisted } from '@solid-primitives/storage'
-import { Show, createSignal, getOwner, onMount } from 'solid-js'
+import { Show, createEffect, createSignal, getOwner } from 'solid-js'
 import { Button } from '~/components/ui/button'
 import {
 	Card,
@@ -9,6 +9,7 @@ import {
 	CardHeader,
 	CardTitle
 } from '~/components/ui/card'
+import { cn } from '~/lib/utils'
 import { callFunctions, getFunctions } from '~/utils/ai'
 import { Textarea } from './ui/textarea'
 
@@ -38,7 +39,7 @@ export function Chat() {
 		setQuery(inp.value)
 	}
 
-	onMount(() => {
+	createEffect(() => {
 		if (!open()) return
 		setTimeout(() => {
 			const inp = document.getElementById('ai-chat-query') as HTMLTextAreaElement
@@ -61,7 +62,13 @@ export function Chat() {
 			}
 		>
 			<form onSubmit={onSubmit} class="fixed bottom-0 right-0 p-4 w-full max-w-[380px]">
-				<Card>
+				<Card
+					class={cn(
+						'data-[expanded]:zoom-in-95 data-[closed]:zoom-out-95 data-[expanded]:animate-in data-[closed]:animate-out'
+					)}
+					data-expanded={open() ? '' : undefined}
+					data-closed={!open() ? '' : undefined}
+				>
 					<CardHeader>
 						<CardTitle>Chat</CardTitle>
 						<CardDescription>Chat with the AI assistant to take actions</CardDescription>
@@ -88,3 +95,5 @@ export function Chat() {
 		</Show>
 	)
 }
+
+export default Chat

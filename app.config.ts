@@ -20,5 +20,8 @@ export default defineConfig({
 			exclude: ['sqlocal']
 		}
 	},
-	ssr: false
+	ssr: true,
+	devOverlay: true,
+	middleware: './src/middleware.ts',
+	server: { preset: 'netlify' }
 })

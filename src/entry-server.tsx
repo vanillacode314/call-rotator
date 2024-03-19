@@ -1,3 +1,4 @@
+// @refresh reload
 import { createHandler, StartServer } from '@solidjs/start/server'
 
 export default createHandler(() => (
@@ -9,7 +10,6 @@ export default createHandler(() => (
 					<meta name="viewport" content="width=device-width, initial-scale=1" />
 					<link rel="icon" href="/favicon.ico" />
 					{assets}
-					<title>Call Rotator</title>
 				</head>
 				<body class="h-full flex flex-col">
 					<div id="app" class="contents">
