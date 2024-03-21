@@ -1,0 +1,26 @@
+diff --git a/node_modules/sqlocal/dist/drizzle/client.js b/node_modules/sqlocal/dist/drizzle/client.js
+index f0175e8..b06d178 100644
+--- a/node_modules/sqlocal/dist/drizzle/client.js
++++ b/node_modules/sqlocal/dist/drizzle/client.js
+@@ -1,4 +1,4 @@
+-import { SQLocal } from '..';
++import { SQLocal } from '../index.js';
+ export class SQLocalDrizzle extends SQLocal {
+     constructor() {
+         super(...arguments);
+diff --git a/node_modules/sqlocal/dist/drizzle/index.js b/node_modules/sqlocal/dist/drizzle/index.js
+index 64e9e79..5939c5f 100644
+--- a/node_modules/sqlocal/dist/drizzle/index.js
++++ b/node_modules/sqlocal/dist/drizzle/index.js
+@@ -1,2 +1,2 @@
+-export { SQLocalDrizzle } from './client';
++export { SQLocalDrizzle } from './client.js';
+ //# sourceMappingURL=index.js.map
+diff --git a/node_modules/sqlocal/dist/index.js b/node_modules/sqlocal/dist/index.js
+index 09e2ca0..006a537 100644
+--- a/node_modules/sqlocal/dist/index.js
++++ b/node_modules/sqlocal/dist/index.js
+@@ -1,2 +1,2 @@
+-export { SQLocal } from './client';
++export { SQLocal } from './client.js';
+ //# sourceMappingURL=index.js.map
