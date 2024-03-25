@@ -32,10 +32,11 @@
 			pattern="[0-9]{'{10}'}"
 			maxlength={10}
 			id="phone"
-			placeholder="123567890"
-			value={contact.phone}
+			placeholder={contact.phone === '__DISABLED__' ? 'Cannot change phone number' : '123567890'}
+			value={contact.phone === '__DISABLED__' ? '' : contact.phone}
 			on:keydown={validateInput}
 			on:input={onInput}
+			disabled={contact.phone === '__DISABLED__'}
 		/>
 		<Label for="phone" class="text-right">Notes</Label>
 		<Textarea name="notes" id="notes" placeholder="Type your message here." value={contact.notes} />

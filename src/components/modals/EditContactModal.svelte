@@ -47,7 +47,7 @@
 				<Dialog.Title>Edit Contact</Dialog.Title>
 				<Dialog.Description>Click save when done.</Dialog.Description>
 			</Dialog.Header>
-			<ContactForm {contact} />
+			<ContactForm contact={{ ...contact, phone: '__DISABLED__' }} />
 			<Dialog.Footer>
 				<Button type="submit">Save</Button>
 			</Dialog.Footer>
