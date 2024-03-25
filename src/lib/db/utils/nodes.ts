@@ -156,17 +156,13 @@ export const mutations = {
 				const children = await query.getChildrenById(id);
 
 				if (tx) {
-					await Promise.all([
-						tx.delete(nodes).where(eq(nodes.id, id)),
-						...children.map((child) => this.removeNode(child.id, tx))
-					]);
+					await Promise.all(children.map((child) => this.removeNode(child.id, tx)));
+					await tx.delete(nodes).where(eq(nodes.id, id));
 				} else {
 					const db = await getSQLocalClient();
 					await db.transaction(async (tx) => {
-						await Promise.all([
-							tx.delete(nodes).where(eq(nodes.id, id)),
-							...children.map((child) => this.removeNode(child.id, tx))
-						]);
+						await Promise.all(children.map((child) => this.removeNode(child.id, tx)));
+						await tx.delete(nodes).where(eq(nodes.id, id));
 					});
 				}
 
