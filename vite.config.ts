@@ -1,12 +1,14 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import { defineConfig } from 'vitest/config';
 import Unocss from 'unocss/vite';
+import AutoImport from 'unplugin-auto-import/vite';
+import { defineConfig } from 'vitest/config';
 
 export default defineConfig({
 	optimizeDeps: {
-		exclude: ['sqlocal']
+		exclude: ['sqlocal', 'svelte-headless-table', 'svelte-sonner']
 	},
 	plugins: [
+		AutoImport({ imports: [{ '$/utils/debug': ['d'] }], dts: 'src/auto-imports.d.ts' }),
 		{
 			name: 'configure-response-headers',
 			configureServer: (server) => {

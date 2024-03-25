@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	import { writable } from '@square/svelte-store';
-	export const renameFolderDialogOpen = writable(false);
+	export const renameFolderModalOpen = writable(false);
 </script>
 
 <script lang="ts">
@@ -16,29 +16,33 @@
 	} from '$/components/ui/dialog';
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
-	import { mutations } from '$/lib/db/utils';
-	import { useFileSystem } from '$/stores';
+	import { mutations } from '$/lib/db/utils/nodes';
+	import { useFileSystem } from '$/stores/filesystem';
 	import { parseFormData, selectInputById } from '$/utils';
+	import { invalidate } from '$app/navigation';
+	import { page } from '$app/stores';
 
-	const { selectedFolder, filesAndFolders } = useFileSystem();
+	const { selectedNode } = useFileSystem();
+
+	$: pwd = decodeURI($page.url.pathname);
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
-			await mutations.renameFolder($selectedFolder!.id, name);
-			filesAndFolders.reload?.();
+			await mutations.renameNode($selectedNode!.id, name);
+			invalidate(`pwd:${pwd}`);
 		} finally {
-			$renameFolderDialogOpen = false;
+			$renameFolderModalOpen = false;
 		}
 	}
 </script>
 
 <Dialog
-	bind:open={$renameFolderDialogOpen}
+	bind:open={$renameFolderModalOpen}
 	onOpenChange={() => {
 		if (!open) return;
-		if (!$selectedFolder) {
-			$renameFolderDialogOpen = false;
+		if (!$selectedNode) {
+			$renameFolderModalOpen = false;
 			console.error('No folder selected');
 			return;
 		}
@@ -54,7 +58,7 @@
 			<div class="grid gap-4 py-4">
 				<div class="grid grid-cols-4 items-center gap-4">
 					<Label for="name" class="text-right">Name</Label>
-					<Input name="name" id="name" value={$selectedFolder?.name} class="col-span-3" />
+					<Input name="name" id="name" value={$selectedNode?.name} class="col-span-3" />
 				</div>
 			</div>
 			<DialogFooter>

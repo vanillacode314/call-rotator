@@ -16,4 +16,11 @@ function asyncMap<T, U>(
 	return Promise.all(arr.map(fn));
 }
 
-export { parseFormData, selectInputById, asyncMap };
+function filterInPlace<T>(arr: T[], fn: (item: T) => boolean): T[] {
+	for (let i = arr.length - 1; i >= 0; i--) {
+		if (!fn(arr[i])) arr.splice(i, 1);
+	}
+	return arr;
+}
+
+export { asyncMap, filterInPlace, parseFormData, selectInputById };

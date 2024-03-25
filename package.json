@@ -28,6 +28,7 @@
 		"@unocss/extractor-svelte": "^0.58.6",
 		"@unocss/preset-web-fonts": "^0.58.6",
 		"autoprefixer": "^10.4.16",
+		"drizzle-kit": "^0.20.14",
 		"eslint": "^8.56.0",
 		"eslint-config-prettier": "^9.1.0",
 		"eslint-plugin-svelte": "^2.36.0-next.4",
@@ -39,10 +40,12 @@
 		"prettier-plugin-tailwindcss": "^0.5.12",
 		"svelte": "^4.2.7",
 		"svelte-check": "^3.6.0",
+		"svelte-headless-table": "^0.18.2",
 		"tailwindcss": "^3.3.6",
 		"tslib": "^2.4.1",
 		"typescript": "^5.0.0",
 		"unocss": "^0.58.6",
+		"unplugin-auto-import": "^0.17.5",
 		"vite": "^5.0.3",
 		"vitest": "^1.2.0"
 	},
@@ -57,6 +60,7 @@
 		"lucide-svelte": "^0.359.0",
 		"mode-watcher": "^0.3.0",
 		"sqlocal": "^0.7.1",
+		"svelte-sonner": "^0.3.19",
 		"tailwind-merge": "^2.2.2",
 		"tailwind-variants": "^0.2.1",
 		"zod": "^3.22.4"

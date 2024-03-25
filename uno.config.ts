@@ -1,6 +1,6 @@
 // uno.config.ts
-import { defineConfig, presetIcons } from 'unocss';
 import extractorSvelte from '@unocss/extractor-svelte';
+import { defineConfig, presetIcons } from 'unocss';
 
 export default defineConfig({
 	extractors: [extractorSvelte],

@@ -1,6 +1,6 @@
 <script lang="ts" context="module">
 	import { writable } from '@square/svelte-store';
-	export const renameListDialogOpen = writable(false);
+	export const addFolderModalOpen = writable(false);
 </script>
 
 <script lang="ts">
@@ -16,54 +16,44 @@
 	} from '$/components/ui/dialog';
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
-	import { mutations } from '$/lib/db/utils';
-	import { useFileSystem } from '$/stores';
-	import { parseFormData, selectInputById } from '$/utils';
+	import { mutations, query } from '$/lib/db/utils/nodes';
+	import { parseFormData } from '$/utils';
+	import { invalidate } from '$app/navigation';
+	import { page } from '$app/stores';
 
-	const { selectedFile, filesAndFolders } = useFileSystem();
+	$: pwd = decodeURI($page.url.pathname);
+
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
-			await mutations.renameFile($selectedFile!.id, `${name}.list`);
-			filesAndFolders.reload?.();
+			await mutations.createNode({
+				name: name,
+				parent_id: (await query.getNodeByPath(pwd)).id,
+				metadata: null
+			});
+			invalidate(`pwd:${pwd}`);
 		} finally {
-			$renameListDialogOpen = false;
+			$addFolderModalOpen = false;
 		}
 	}
 </script>
 
-<Dialog
-	bind:open={$renameListDialogOpen}
-	onOpenChange={() => {
-		if (!open) return;
-		if (!$selectedFile) {
-			$renameListDialogOpen = false;
-			console.error('No file selected');
-			return;
-		}
-		setTimeout(() => selectInputById('name'));
-	}}
->
+<Dialog bind:open={$addFolderModalOpen}>
 	<DialogContent class="sm:max-w-[425px]">
 		<form on:submit={onsubmit}>
 			<DialogHeader>
-				<DialogTitle>Rename List</DialogTitle>
-				<DialogDescription>Rename a list. Click rename when done.</DialogDescription>
+				<DialogTitle>Add Folder</DialogTitle>
+				<DialogDescription>Add a new folder. Click add when done.</DialogDescription>
 			</DialogHeader>
 			<div class="grid gap-4 py-4">
 				<div class="grid grid-cols-4 items-center gap-4">
 					<Label for="name" class="text-right">Name</Label>
-					<Input
-						name="name"
-						id="name"
-						value={$selectedFile?.name.replace(/\.list$/, '')}
-						class="col-span-3"
-					/>
+					<Input name="name" id="name" value="New Folder" class="col-span-3" />
 				</div>
 			</div>
 			<DialogFooter>
-				<Button type="submit">Rename</Button>
+				<Button type="submit">Add</Button>
 			</DialogFooter>
 		</form>
 	</DialogContent>

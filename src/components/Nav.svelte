@@ -8,11 +8,11 @@
 	}
 </script>
 
-<div
-	class={cn('border-offset-background full-width border-b bg-background !px-6 py-4', $$props.class)}
->
+<div class={cn('border-offset-background full-width border-b bg-background py-4', $$props.class)}>
 	<div class="flex items-center gap-4">
-		<p class="font-bold uppercase tracking-wide">Call Rotator</p>
+		<a href="/">
+			<p class="font-bold uppercase tracking-wide">Call Rotator</p>
+		</a>
 		<span class="grow" />
 		<Button on:click={toggleMode} variant="outline" size="icon">
 			<div

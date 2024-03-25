@@ -1,46 +1,27 @@
-import { isServer } from '$/consts/sveltekit';
-import { getSQLocalDB } from '.';
+import { int, sqliteTable, text, unique, type AnySQLiteColumn } from 'drizzle-orm/sqlite-core';
+import { createSelectSchema } from 'drizzle-zod';
+import { z } from 'zod';
 
-const TABLES = {
-	contacts: `
-		phone TEXT PRIMARY KEY,
-		name TEXT UNIQUE NOT NULL
-	`,
-	folders: `
-		id INTEGER PRIMARY KEY,
-		name TEXT NOT NULL,
-		parent_id INTEGER REFERENCES folders(id),
-		UNIQUE(name, parent_id)
-	`,
-	files: `
-		id INTEGER PRIMARY KEY,
-		name TEXT NOT NULL,
-		parent_id INTEGER NOT NULL REFERENCES folders(id),
-		metadata JSONB,
-		UNIQUE(name, parent_id)
-	`
-};
-const VALID_TABLES = Object.keys(TABLES);
+const nodes = sqliteTable(
+	'nodes',
+	{
+		id: int('id').primaryKey(),
+		name: text('name').notNull(),
+		parent_id: int('parent_id').references((): AnySQLiteColumn => nodes.id),
+		metadata: text('metadata', { mode: 'json' })
+			.$type<Record<string, unknown> | null>()
+			.default(null)
+	},
+	(t) => ({
+		unq: unique().on(t.name, t.parent_id)
+	})
+);
 
-export async function initDB() {
-	await pruneDB();
-	if (isServer) return;
-	const { transaction } = await getSQLocalDB();
-	await transaction((sql) => [
-		...Object.entries(TABLES).map(([name, schema]) =>
-			sql([`CREATE TABLE IF NOT EXISTS ${name} (${schema})`])
-		),
-		sql`INSERT OR IGNORE INTO folders (name) VALUES ('root')`
-	]);
+const nodeSchema = createSelectSchema(nodes, {
+	metadata: z.record(z.string(), z.unknown())
+});
+
+declare global {
+	type TNode = z.infer<typeof nodeSchema>;
 }
-
-export async function pruneDB() {
-	if (isServer) return;
-	const { sql } = await getSQLocalDB();
-	const tables =
-		await sql`SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`;
-	const tableNames = tables.map((row) => row.name).filter((name) => !VALID_TABLES.includes(name));
-	if (tableNames.length > 0)
-		// @ts-ignore
-		await sql([tableNames.map((name) => `DROP TABLE IF EXISTS ${name}`).join(';')]);
-}
+export { nodeSchema, nodes };
