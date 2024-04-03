@@ -50,7 +50,7 @@
 						invalidate(`list:${nodeId}`);
 					}
 				});
-			}}>Delete</DropdownMenu.Item
+			}}>Remove</DropdownMenu.Item
 		>
 		<DropdownMenu.Item
 			on:click={() => {
