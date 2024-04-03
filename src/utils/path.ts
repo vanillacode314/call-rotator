@@ -1,8 +1,17 @@
 function join(...parts: string[]) {
-	if (parts[0] === '/') {
-		return '/' + parts.slice(1).filter(Boolean).join('/');
+	const retval: string[] = [];
+	if (parts[0].startsWith('/')) retval.push('');
+	for (const part of parts) {
+		const subparts = part.split('/').filter(Boolean);
+		for (const subpart of subparts) {
+			if (subpart === '.') {
+				continue;
+			} else if (subpart === '..') {
+				retval.pop();
+			} else retval.push(subpart);
+		}
 	}
-	return parts.join('/');
+	return retval.join('/') || '/';
 }
 
 function compressPath(path: string) {

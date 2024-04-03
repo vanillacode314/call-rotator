@@ -18,7 +18,7 @@
 			type="button"
 		>
 			<span>{action.label}</span>
-			<span class={cn(action.icon, 'text-base')}></span>
+			<span class={cn(action.icon, 'shrink-0 text-base')}></span>
 		</Button>
 	{/each}
 </div>

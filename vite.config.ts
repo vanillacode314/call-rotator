@@ -8,7 +8,7 @@ export default defineConfig({
 		exclude: ['sqlocal', 'svelte-headless-table', 'svelte-sonner']
 	},
 	plugins: [
-		AutoImport({ imports: [{ '$/utils/debug': ['d'] }], dts: 'src/auto-imports.d.ts' }),
+		AutoImport({ imports: [{ '$/utils/debug': ['d', 'dt'] }], dts: 'src/auto-imports.d.ts' }),
 		{
 			name: 'configure-response-headers',
 			configureServer: (server) => {

@@ -14,7 +14,7 @@
 	const clipboard = useClipboard();
 
 	export let contact: TContact;
-	export let node: TNode;
+	export let nodeId: TNode['id'];
 </script>
 
 <DropdownMenu.Root>
@@ -38,12 +38,12 @@
 				alert('Delete Contact', 'Are you sure you want to delete this contact?', {
 					icon: 'i-carbon:trash-can',
 					onYes: async () => {
-						await mutations.updateMetadata(node.id, (metadata) => {
+						await mutations.updateMetadata(nodeId, (metadata) => {
 							const parsedMetadata = contactMetadataSchema.parse(metadata);
 							filterInPlace(parsedMetadata.contacts, (c) => c.phone !== contact.phone);
 							return parsedMetadata;
 						});
-						invalidate(`contact:${node.id}`);
+						invalidate(`contact:${nodeId}`);
 					}
 				});
 			}}>Delete</DropdownMenu.Item
@@ -51,7 +51,7 @@
 		<DropdownMenu.Item
 			on:click={() => {
 				$clipboard.contacts = [contact];
-				$clipboard.nodes = [node];
+				$clipboard.nodes = [nodeId];
 				$editContactModalOpen = true;
 			}}>Edit</DropdownMenu.Item
 		>

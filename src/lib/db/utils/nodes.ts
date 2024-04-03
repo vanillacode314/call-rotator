@@ -2,7 +2,15 @@ import { isServer } from '$/consts/sveltekit';
 import { nodes } from '$/lib/db/schema';
 import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 import { $mode } from '$/stores';
-import { and, eq, isNull, like, type ExtractTablesWithRelations } from 'drizzle-orm';
+import {
+	and,
+	eq,
+	inArray,
+	isNotNull,
+	isNull,
+	like,
+	type ExtractTablesWithRelations
+} from 'drizzle-orm';
 import type { SQLiteTransaction } from 'drizzle-orm/sqlite-core';
 import type { SqliteRemoteResult } from 'drizzle-orm/sqlite-proxy';
 
@@ -16,6 +24,19 @@ export const query = {
 				const [node] = await db.select().from(nodes).where(eq(nodes.id, id)).limit(1);
 
 				return node;
+			case 'online':
+				throw new Error('todo');
+		}
+	},
+	async getNodesByIds(ids: TNode['id'][]) {
+		switch ($mode) {
+			case 'offline':
+				if (isServer) throw new Error('Cannot getNode on server in offlineMode');
+
+				const db = await getSQLocalClient();
+				const _nodes = await db.select().from(nodes).where(inArray(nodes.id, ids));
+
+				return _nodes;
 			case 'online':
 				throw new Error('todo');
 		}
@@ -38,7 +59,8 @@ export const query = {
 					[node] = await db
 						.select()
 						.from(nodes)
-						.where(and(eq(nodes.parent_id, currentId), eq(nodes.name, part)));
+						.where(and(eq(nodes.parent_id, currentId), eq(nodes.name, part)))
+						.limit(1);
 					if (!node) throw new Error('Invalid Path');
 					currentId = node.id;
 				}
@@ -48,7 +70,13 @@ export const query = {
 				throw new Error('todo');
 		}
 	},
-	async getChildrenById(parentId?: number, pattern: string = '') {
+	async getChildrenById(
+		parentId?: number,
+		{
+			pattern = '',
+			returns = 'both'
+		}: Partial<{ pattern: string; returns: 'dir' | 'files' | 'both' }> = {}
+	) {
 		switch ($mode) {
 			case 'offline':
 				if (isServer) throw new Error('Cannot getChildren on server in offlineMode');
@@ -60,7 +88,12 @@ export const query = {
 					.where(
 						and(
 							parentId !== undefined ? eq(nodes.parent_id, parentId) : isNull(nodes.parent_id),
-							pattern !== '' ? like(nodes.name, pattern) : undefined
+							pattern !== '' ? like(nodes.name, pattern) : undefined,
+							returns === 'files'
+								? isNotNull(nodes.metadata)
+								: returns === 'dir'
+									? isNull(nodes.metadata)
+									: undefined
 						)
 					);
 
@@ -69,9 +102,15 @@ export const query = {
 				throw new Error('todo');
 		}
 	},
-	async getChildrenByPath(path: string, pattern: string = '') {
+	async getChildrenByPath(
+		path: string,
+		{
+			pattern = '',
+			returns = 'both'
+		}: Partial<{ pattern: string; returns: 'dir' | 'files' | 'both' }> = {}
+	) {
 		const node = await this.getNodeByPath(path);
-		return this.getChildrenById(node.id, pattern);
+		return this.getChildrenById(node.id, { pattern, returns });
 	}
 };
 

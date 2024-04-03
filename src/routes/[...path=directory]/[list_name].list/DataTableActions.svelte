@@ -10,11 +10,12 @@
 	import { invalidate } from '$app/navigation';
 	import { filterInPlace } from '$/utils';
 	import { showTextModal } from '$/components/modals/TextModal.svelte';
+	import { listMetadataSchema } from '$/types/list';
 
 	const clipboard = useClipboard();
 
-	export let contact: TContact;
-	export let node: TNode;
+	export let contact: TContact & { nodeId: TNode['id'] };
+	export let nodeId: TNode['id'];
 </script>
 
 <DropdownMenu.Root>
@@ -35,15 +36,18 @@
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item
 			on:click={() => {
-				alert('Delete Contact', 'Are you sure you want to delete this contact?', {
+				alert('Remove Contact', 'Are you sure you want to remove this contact from this list?', {
 					icon: 'i-carbon:trash-can',
 					onYes: async () => {
-						await mutations.updateMetadata(node.id, (metadata) => {
-							const parsedMetadata = contactMetadataSchema.parse(metadata);
-							filterInPlace(parsedMetadata.contacts, (c) => c.phone !== contact.phone);
+						await mutations.updateMetadata(nodeId, (metadata) => {
+							const parsedMetadata = listMetadataSchema.parse(metadata);
+							filterInPlace(
+								parsedMetadata.contacts[contact.nodeId],
+								(phone) => phone !== contact.phone
+							);
 							return parsedMetadata;
 						});
-						invalidate(`contact:${node.id}`);
+						invalidate(`list:${nodeId}`);
 					}
 				});
 			}}>Delete</DropdownMenu.Item
@@ -51,7 +55,7 @@
 		<DropdownMenu.Item
 			on:click={() => {
 				$clipboard.contacts = [contact];
-				$clipboard.nodes = [node];
+				$clipboard.nodes = [contact.nodeId];
 				$editContactModalOpen = true;
 			}}>Edit</DropdownMenu.Item
 		>

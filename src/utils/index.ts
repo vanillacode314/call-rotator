@@ -3,6 +3,13 @@ function parseFormData<T extends z.ZodTypeAny>(form: HTMLFormElement, schema: T)
 	return schema.parse(Object.fromEntries(new FormData(form)));
 }
 
+function safeParseFormData<T extends z.ZodTypeAny>(
+	form: HTMLFormElement,
+	schema: T
+): z.SafeParseReturnType<z.input<T>, z.output<T>> {
+	return schema.safeParse(Object.fromEntries(new FormData(form)));
+}
+
 function selectInputById(id: string) {
 	const input = document.getElementById(id) as HTMLInputElement;
 	if (!input) throw new Error(`Input with id ${id} not found`);
@@ -23,4 +30,23 @@ function filterInPlace<T>(arr: T[], fn: (item: T) => boolean): T[] {
 	return arr;
 }
 
-export { asyncMap, filterInPlace, parseFormData, selectInputById };
+function isEmpty(obj: Record<string, unknown>) {
+	return Object.keys(obj).length === 0;
+}
+
+function formatDate(date: Date) {
+	const day = date.getDate().toString().padStart(2, '0');
+	const month = (date.getMonth() + 1).toString().padStart(2, '0');
+	const year = date.getFullYear().toString();
+	return `${year}-${month}-${day}`;
+}
+
+export {
+	asyncMap,
+	filterInPlace,
+	formatDate,
+	isEmpty,
+	parseFormData,
+	safeParseFormData,
+	selectInputById
+};

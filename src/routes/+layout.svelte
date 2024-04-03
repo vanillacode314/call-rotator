@@ -25,7 +25,7 @@
 <div class="content-grid h-full grid-rows-[auto_1fr]">
 	<Nav />
 	<main class="full-width">
-		<div class="grid h-full gap-4 bg-background p-0 md:grid-cols-[200px_1fr]">
+		<div class="grid h-full gap-4 bg-background p-0 md:grid-cols-[230px_1fr]">
 			<div class="hidden md:contents">
 				<Sidebar class="p-4" />
 			</div>

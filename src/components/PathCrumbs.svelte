@@ -8,7 +8,7 @@
 <Breadcrumb.Root>
 	<Breadcrumb.List>
 		<Breadcrumb.Item>
-			<Breadcrumb.Link href="/">/</Breadcrumb.Link>
+			<Breadcrumb.Link href="/">Home</Breadcrumb.Link>
 		</Breadcrumb.Item>
 		{#each parts as part, index}
 			<Breadcrumb.Separator />

@@ -49,7 +49,7 @@
 			accessor: (contact) => contact,
 			header: '',
 			cell: ({ value }) => {
-				return createRender(DataTableActions, { contact: value, node: data.node! });
+				return createRender(DataTableActions, { contact: value, nodeId: data.node!.id });
 			}
 		})
 	]);

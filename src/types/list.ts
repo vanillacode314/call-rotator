@@ -1,12 +1,19 @@
-import { nodeSchema } from '$/lib/db/schema';
 import { z } from 'zod';
+import { contactMetadataSchema } from './contact';
 
 const listMetadataSchema = z.object({
-	contacts: nodeSchema
-		.refine((node) => node.name.endsWith('.contacts'), { message: 'Not a contact' })
-		.array()
-		.default([]),
-	cycleDurationDays: z.number().int().min(1).default(1)
+	contacts: z
+		.record(
+			z.coerce.number(),
+			contactMetadataSchema.shape.contacts.removeDefault().element.shape.phone.array().default([])
+		)
+		.default({}),
+	cycleDurationDays: z.number().int().min(1).default(1),
+	startDate: z.date({ coerce: true }).default(new Date())
 });
 
 export { listMetadataSchema };
+
+declare global {
+	type TListMetadata = z.infer<typeof listMetadataSchema>;
+}

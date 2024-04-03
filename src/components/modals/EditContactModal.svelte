@@ -21,17 +21,21 @@
 		try {
 			const formData = parseFormData(
 				e.target as HTMLFormElement,
-				contactMetadataSchema.shape.contacts.removeDefault().element
+				contactMetadataSchema.shape.contacts
+					.removeDefault()
+					.element.extend({ phone: z.string().optional() })
 			);
 			const originalPhone = $clipboard.contacts[0].phone;
-			await mutations.updateMetadata($clipboard.nodes[0].id, (metadata) => {
+			formData.phone = formData.phone ?? originalPhone;
+			const nodeId = $clipboard.nodes[0];
+			await mutations.updateMetadata(nodeId, (metadata) => {
 				const parsedMetadata = contactMetadataSchema.parse(metadata);
 				const contact = parsedMetadata.contacts.find((contact) => contact.phone === originalPhone);
 				if (!contact) throw new Error('Contact not found');
 				Object.assign(contact, formData);
 				return parsedMetadata;
 			});
-			invalidate(`contact:${$clipboard.nodes[0]!.id}`);
+			invalidate(`contact:${nodeId}`);
 		} finally {
 			$editContactModalOpen = false;
 		}
