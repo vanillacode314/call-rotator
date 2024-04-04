@@ -25,7 +25,7 @@
 			</Button>
 		</div>
 	</Popover.Trigger>
-	<Popover.Content class="w-auto border-none p-0 pb-4">
+	<Popover.Content class="w-auto border-none p-0 pb-4 shadow-none">
 		<ul class="grid gap-4">
 			{#each $actions as action}
 				<li>
