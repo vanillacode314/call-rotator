@@ -6,13 +6,13 @@
 	import ContextMenuFolder from './ContextMenuFolder.svelte';
 	import ContextMenuFile from './ContextMenuFile.svelte';
 	import { createFileModalOpen } from '$/components/modals/CreateFileModal.svelte';
-	import { useSidebar } from '$/stores/sidebar';
+	import { useActions } from '$/stores/actions';
 	import { goto, invalidate } from '$app/navigation';
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import { mutations, query } from '$/lib/db/utils/nodes';
 	import { toast } from 'svelte-sonner';
 
-	const { actions } = useSidebar();
+	const { actions } = useActions();
 
 	export let data;
 
@@ -84,7 +84,9 @@
 			</div>
 		{/if}
 	{:else}
-		<ul class="grid h-full items-start gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+		<ul
+			class="grid h-full content-start items-start gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+		>
 			{#each folders as folder}
 				<ContextMenuFolder {folder}>
 					<li

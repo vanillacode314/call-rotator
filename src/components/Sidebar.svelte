@@ -1,9 +1,9 @@
 <script lang="ts">
 	import { Button } from '$/components/ui/button';
-	import { useSidebar } from '$/stores/sidebar';
+	import { useActions } from '$/stores/actions';
 	import { cn } from '$/utils/ui';
 
-	const { actions } = useSidebar();
+	const { actions } = useActions();
 	interface $$Props {
 		class?: string;
 	}

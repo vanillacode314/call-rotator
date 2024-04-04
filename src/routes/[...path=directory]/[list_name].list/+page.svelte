@@ -2,7 +2,7 @@
 	import * as path from '$/utils/path';
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
-	import { useSidebar } from '$/stores/sidebar';
+	import { useActions } from '$/stores/actions';
 	import { parseMetadata } from '$/utils/types';
 	import { Button } from '$/components/ui/button';
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
@@ -22,7 +22,7 @@
 	import DatePicker from '$/components/DatePicker.svelte';
 	import { parseDate } from '@internationalized/date';
 
-	const { actions } = useSidebar();
+	const { actions } = useActions();
 
 	export let data;
 	$: ({ pwd } = data);

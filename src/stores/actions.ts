@@ -10,15 +10,15 @@ type TSidebarContext = {
 	actions: Loadable<TSidebarAction[]>;
 };
 
-function useSidebar() {
+function useActions() {
 	const value = getContext<TSidebarContext>('sidebar-context');
 	if (!value) throw new Error('Sidebar context not found');
 	return value;
 }
 
-function initSidebarContext() {
+function initActionsContext() {
 	const actions = writable([]);
 	return setContext<TSidebarContext>('sidebar-context', { actions });
 }
 
-export { initSidebarContext, useSidebar };
+export { initActionsContext, useActions };

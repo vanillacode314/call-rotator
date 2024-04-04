@@ -2,15 +2,16 @@
 	import { ModeWatcher } from 'mode-watcher';
 	import '../app.pcss';
 	import Nav from '$/components/Nav.svelte';
+	import Fab from '$/components/Fab.svelte';
 	import 'uno.css';
-	import { initSidebarContext } from '$/stores/sidebar';
+	import { initActionsContext } from '$/stores/actions';
 	import { initFileSystemContext } from '$/stores/filesystem';
 	import Sidebar from '$/components/Sidebar.svelte';
 	import { initClipboardContext } from '$/stores/clipboard';
 	import { Toaster } from '$/components/ui/sonner';
 
 	initFileSystemContext();
-	initSidebarContext();
+	const { actions } = initActionsContext();
 	initClipboardContext();
 
 	const modals = import.meta.glob('$/components/modals/*Modal.svelte', {
@@ -24,6 +25,7 @@
 {/each}
 <div class="content-grid h-full grid-rows-[auto_1fr]">
 	<Nav />
+	<Fab class="fixed bottom-0 right-0 m-4 p-4 md:hidden" />
 	<main class="full-width">
 		<div class="grid h-full gap-4 bg-background p-0 md:grid-cols-[230px_1fr]">
 			<div class="hidden md:contents">

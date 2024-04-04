@@ -2,7 +2,7 @@
 	import * as path from '$/utils/path';
 	import { useFileSystem } from '$/stores/filesystem';
 	import { page } from '$app/stores';
-	import { useSidebar } from '$/stores/sidebar';
+	import { useActions } from '$/stores/actions';
 	import { newContactModalOpen } from '$/components/modals/NewContactModal.svelte';
 	import { parseMetadata } from '$/utils/types';
 	import { contactMetadataSchema } from '$/types/contact';
@@ -14,7 +14,7 @@
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 
 	const { selectedNode } = useFileSystem();
-	const { actions } = useSidebar();
+	const { actions } = useActions();
 
 	export let data;
 	$: ({ pwd } = data);
