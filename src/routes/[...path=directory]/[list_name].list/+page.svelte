@@ -198,6 +198,10 @@
 														class="line-clamp-1 hidden truncate whitespace-pre-line text-muted-foreground group-hover:line-clamp-none sm:table-cell"
 														><Render of={cell.render()} /></span
 													>
+												{:else if cell.id === 'phone'}
+													<span class="hidden sm:table-cell">
+														<Render of={cell.render()} />
+													</span>
 												{:else}
 													<Render of={cell.render()} />
 												{/if}
@@ -224,6 +228,10 @@
 														class="sm:box line-clamp-1 hidden truncate whitespace-pre-wrap text-muted-foreground"
 														><Render of={cell.render()} /></span
 													>
+												{:else if cell.id === 'phone'}
+													<span class="hidden sm:table-cell">
+														<Render of={cell.render()} />
+													</span>
 												{:else}
 													<Render of={cell.render()} />
 												{/if}
