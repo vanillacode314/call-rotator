@@ -151,7 +151,6 @@
 				const s = node!.metadata.startDate.getTime();
 				const dt = Math.floor((now - s) / 1000 / 60 / 60 / 24);
 				let retval: number;
-				console.log(dt);
 				if (dt <= 0) {
 					retval = index * interval + Math.abs(dt);
 				} else {

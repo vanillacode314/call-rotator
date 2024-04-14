@@ -13,7 +13,10 @@
 	import { listMetadataSchema } from '$/types/list';
 	import { createFetcher } from '$/utils/zod';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
-	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import {
+		getOutputSchema,
+		putOutputSchema as nodesPutOutputSchema
+	} from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 	import { page } from '$app/stores';
 
 	const clipboard = useClipboard();
@@ -56,12 +59,10 @@
 		</Button>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Label>Actions</DropdownMenu.Label>
 		<DropdownMenu.Item on:click={() => navigator.clipboard.writeText(contact.phone)}>
 			Copy phone
 		</DropdownMenu.Item>
 		<DropdownMenu.Item on:click={() => showTextModal(contact.notes)}>See Notes</DropdownMenu.Item>
-
 		<DropdownMenu.Separator />
 		<DropdownMenu.Item
 			on:click={() => {
@@ -72,9 +73,14 @@
 			}}>Remove</DropdownMenu.Item
 		>
 		<DropdownMenu.Item
-			on:click={() => {
+			on:click={async () => {
+				const result = await fetcher(getOutputSchema, `/api/v1/nodes/by-id?id=${contact.nodeId}`);
+				if (!result.success) {
+					toastErrors(result.errors);
+					return;
+				}
 				$clipboard.contacts = [contact];
-				$clipboard.nodes = [node];
+				$clipboard.nodes = [result.data.node];
 				$editContactModalOpen = true;
 			}}>Edit</DropdownMenu.Item
 		>

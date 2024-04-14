@@ -2,7 +2,7 @@
 	const text = writable<string>('');
 
 	function showTextModal(value: string) {
-		text.set(value);
+		text.set(value || 'Empty');
 	}
 
 	export { showTextModal };
