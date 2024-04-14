@@ -24,8 +24,10 @@
 	import { uniq } from '$/utils/array';
 	import { createFetcher } from '$/utils/zod';
 	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 
 	const { actions } = useActions();
+	const queue = useTaskQueue();
 
 	export let data;
 	$: ({ pwd } = data);
@@ -85,18 +87,38 @@
 			return;
 		}
 		const parsedFormData = result.data;
-		await mutations
-			.updateMetadata(node!.id, (metadata) => {
-				return Object.assign(metadata ?? {}, parsedFormData);
-			})
-			.then(() => {
-				toast.success('Saved successfully!');
-				invalidate(`list:${node!.id}`);
-			})
-			.catch((e) => {
-				console.error(e);
-				toast.error('Failed to save');
-			});
+		await queueTask(queue, 'Saving', async () => {
+			if (data.mode === 'offline') {
+				await mutations
+					.updateMetadata(node!.id, (metadata) => {
+						return Object.assign(metadata ?? {}, parsedFormData);
+					})
+					.then(async () => {
+						await invalidate(`list:${node!.id}`);
+						toast.success('Saved successfully!');
+					})
+					.catch((e) => {
+						console.error(e);
+						toast.error('Failed to save');
+					});
+			} else {
+				const formData = new FormData();
+				formData.set(
+					'node',
+					JSON.stringify({ id: node!.id, metadata: Object.assign(node!.metadata, parsedFormData) })
+				);
+				const result = await fetcher(nodesPutOutputSchema, '/api/v1/nodes/by-id', {
+					method: 'PUT',
+					body: formData
+				});
+				if (!result.success) {
+					toastErrors(result.errors);
+				} else {
+					await invalidate(`list:${node!.id}`);
+					toast.success('Saved successfully!');
+				}
+			}
+		});
 	}
 
 	function validateCycleDurationDays(event: Event) {
@@ -129,14 +151,14 @@
 				const s = node!.metadata.startDate.getTime();
 				const dt = Math.floor((now - s) / 1000 / 60 / 60 / 24);
 				let retval: number;
-				if (dt < 0) {
+				console.log(dt);
+				if (dt <= 0) {
 					retval = index * interval + Math.abs(dt);
 				} else {
-					retval =
-						index * interval +
-						(node!.metadata.cycleDurationDays - (Math.abs(dt) % node!.metadata.cycleDurationDays));
+					retval = index * interval - (Math.abs(dt) % node!.metadata.cycleDurationDays);
+					if (retval < 0) retval += node!.metadata.cycleDurationDays;
 				}
-				return `${retval} ${retval === 1 ? 'day' : 'days'}`;
+				return retval === 0 ? 'Today' : retval === 1 ? 'Tomorrow' : `${retval} days`;
 			}
 		}),
 		table.column({
