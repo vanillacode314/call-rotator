@@ -17,21 +17,36 @@
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
 	import { mutations, query } from '$/lib/db/utils/nodes';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
+	import { createFetcher } from '$/utils/zod';
+	import { postOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 
 	$: pwd = decodeURI($page.url.pathname);
+	const fetcher = createFetcher(fetch);
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
+			const formData = new FormData(e.target as HTMLFormElement);
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
-			await mutations.createNode({
-				name: name,
-				parent_id: (await query.getNodeByPath(pwd)).id,
-				metadata: null
-			});
+			formData.set('node', JSON.stringify({ name, parent_id: $page.data.node.id, metadata: null }));
+			if ($page.data.mode === 'offline') {
+				await mutations.createNode({
+					name: name,
+					parent_id: $page.data.node.id,
+					metadata: null
+				});
+			} else {
+				const result = await fetcher(postOutputSchema, `/api/v1/nodes/by-id`, {
+					method: 'POST',
+					body: formData
+				});
+				if (!result.success) {
+					toastErrors(result.errors);
+				}
+			}
 			invalidate(`pwd:${pwd}`);
 		} finally {
 			$addFolderModalOpen = false;

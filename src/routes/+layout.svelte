@@ -1,39 +1,8 @@
 <script lang="ts">
-	import { ModeWatcher } from 'mode-watcher';
 	import '../app.pcss';
-	import Nav from '$/components/Nav.svelte';
-	import Fab from '$/components/Fab.svelte';
 	import 'uno.css';
-	import { initActionsContext } from '$/stores/actions';
-	import { initFileSystemContext } from '$/stores/filesystem';
-	import Sidebar from '$/components/Sidebar.svelte';
-	import { initClipboardContext } from '$/stores/clipboard';
-	import { Toaster } from '$/components/ui/sonner';
-
-	initFileSystemContext();
-	const { actions } = initActionsContext();
-	initClipboardContext();
-
-	const modals = import.meta.glob('$/components/modals/*Modal.svelte', {
-		import: 'default',
-		eager: true
-	}) satisfies Record<string, ConstructorOfATypedSvelteComponent>;
+	import { ModeWatcher } from 'mode-watcher';
 </script>
 
-{#each Object.values(modals) as comp}
-	<svelte:component this={comp}></svelte:component>
-{/each}
-<div class="content-grid h-full grid-rows-[auto_1fr]">
-	<Nav />
-	<Fab class="fixed bottom-0 right-0 m-4 p-4 md:hidden" />
-	<main class="full-width">
-		<div class="grid h-full gap-4 bg-background p-0 md:grid-cols-[230px_1fr]">
-			<div class="hidden md:contents">
-				<Sidebar class="p-4" />
-			</div>
-			<slot />
-		</div>
-	</main>
-</div>
-<Toaster richColors />
+<slot />
 <ModeWatcher />

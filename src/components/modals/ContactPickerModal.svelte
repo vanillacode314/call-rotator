@@ -1,16 +1,35 @@
 <script lang="ts" context="module">
+	import { getOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 	import { writable } from '@square/svelte-store';
+	import { createFetcher } from '$/utils/zod';
 
-	const onPick = writable<(contacts: TContact[]) => void>(() => {});
 	const node = writable<(TNode & { metadata: { contacts: TContact[] } }) | null>(null);
+	let _resolve: (contacts: TContact[]) => void = () => {};
+	let _reject: (contacts: TContact[]) => void = () => {};
 
-	async function openContactPicker(nodeId: TNode['id'], _onPick: (contacts: TContact[]) => void) {
-		const _node = parseMetadata(await query.getNodeById(nodeId), contactMetadataSchema);
+	const fetcher = createFetcher(fetch);
+
+	async function openContactPicker(nodeId: TNode['id']) {
+		let _node: TNode;
+		if (get(page).data.mode === 'offline') {
+			_node = await query.getNodeById(nodeId);
+		} else {
+			const result = await fetcher(getOutputSchema, `/api/v1/nodes/by-id?id=${nodeId}`);
+			if (!result.success) {
+				toastErrors(result.errors);
+				return;
+			}
+			_node = result.data.node;
+		}
 		if (!_node.name.endsWith('.contacts')) {
 			throw new Error('Invalid File');
 		}
+		_node = parseMetadata(_node, contactMetadataSchema);
 		node.set(_node);
-		onPick.set(_onPick);
+		return new Promise<TContact[]>((resolve, reject) => {
+			_resolve = resolve;
+			_reject = reject;
+		});
 	}
 
 	export { openContactPicker };
@@ -24,11 +43,14 @@
 	import { parseMetadata } from '$/utils/types';
 	import { Checkbox } from '$/components/ui/checkbox';
 	import { Label } from '$/components/ui/label';
+	import { page } from '$app/stores';
+	import { get } from 'svelte/store';
+	import { toastErrors } from '$/utils';
 
 	let selected: boolean[] = [];
 	function onsubmit(event: SubmitEvent) {
 		event.preventDefault();
-		$onPick($node!.metadata.contacts.filter((_, index) => selected[index]));
+		_resolve($node!.metadata.contacts.filter((_, index) => selected[index]));
 		node.set(null);
 		selected = [];
 	}

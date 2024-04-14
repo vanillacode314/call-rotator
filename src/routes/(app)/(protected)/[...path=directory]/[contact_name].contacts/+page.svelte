@@ -1,7 +1,6 @@
 <script lang="ts">
 	import * as path from '$/utils/path';
 	import { useFileSystem } from '$/stores/filesystem';
-	import { page } from '$app/stores';
 	import { useActions } from '$/stores/actions';
 	import { newContactModalOpen } from '$/components/modals/NewContactModal.svelte';
 	import { parseMetadata } from '$/utils/types';
@@ -12,6 +11,9 @@
 	import DataTableActions from './DataTableActions.svelte';
 	import { Button } from '$/components/ui/button';
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
+	import { mutations as nodesMutations } from '$/lib/db/utils/nodes';
+	import { alert } from '$/components/modals/AlertModal.svelte';
+	import { invalidate } from '$app/navigation';
 
 	const { selectedNode } = useFileSystem();
 	const { actions } = useActions();
@@ -26,6 +28,16 @@
 			async onclick() {
 				$selectedNode = data.node!;
 				$newContactModalOpen = true;
+			}
+		},
+		{
+			label: 'Delete Contact',
+			icon: 'i-carbon:trash-can',
+			async onclick() {
+				alert('Delete File', 'Are you sure you want to delete this file?', {
+					icon: 'i-carbon:trash-can',
+					onYes: () => nodesMutations.removeNode(node!.id).then(() => invalidate(`pwd:${pwd}`))
+				});
 			}
 		}
 	];
@@ -49,7 +61,7 @@
 			accessor: (contact) => contact,
 			header: '',
 			cell: ({ value }) => {
-				return createRender(DataTableActions, { contact: value, nodeId: data.node!.id });
+				return createRender(DataTableActions, { contact: value, node: node! });
 			}
 		})
 	]);

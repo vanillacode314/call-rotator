@@ -8,7 +8,7 @@
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import * as Card from '$/components/ui/card';
 	import { listMetadataSchema } from '$/types/list';
-	import { formatDate, safeParseFormData } from '$/utils';
+	import { formatDate, safeParseFormData, toastErrors } from '$/utils';
 	import { z } from 'zod';
 	import { mutations } from '$/lib/db/utils/nodes';
 	import { toast } from 'svelte-sonner';
@@ -21,35 +21,45 @@
 	import { readable } from '@square/svelte-store';
 	import DatePicker from '$/components/DatePicker.svelte';
 	import { parseDate } from '@internationalized/date';
+	import { uniq } from '$/utils/array';
+	import { createFetcher } from '$/utils/zod';
+	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 
 	const { actions } = useActions();
 
 	export let data;
 	$: ({ pwd } = data);
+	const fetcher = createFetcher(fetch);
 
 	async function importContact() {
-		openFilePicker((contactFile) => {
-			if (contactFile === null) {
-				toast.error('No file selected');
-				return;
-			}
-			openContactPicker(contactFile.id, async (selectedContacts) => {
-				await mutations.updateMetadata(node!.id, (metadata) => {
-					const parsedMetadata = listMetadataSchema.parse(metadata);
-					const contactIds = parsedMetadata.contacts[contactFile.id];
-					if (contactIds === undefined) {
-						parsedMetadata.contacts[contactFile.id] = selectedContacts.map((c) => c.phone);
-						return parsedMetadata;
-					}
-					parsedMetadata.contacts[contactFile.id] = [
-						...contactIds,
-						...selectedContacts.map((c) => c.phone)
-					];
-					return parsedMetadata;
-				});
-				invalidate(`list:${node!.id}`);
+		const contactFile = await openFilePicker('%.contacts');
+
+		if (contactFile === null) {
+			toast.error('No file selected');
+			return;
+		}
+		const selectedContacts = (await openContactPicker(contactFile.id)).map((c) => c.phone);
+		const parsedMetadata = listMetadataSchema.parse(node!.metadata);
+		const contacts = parsedMetadata.contacts.find((c) => c.nodeId === contactFile.id);
+		if (contacts === undefined) {
+			parsedMetadata.contacts.push({ nodeId: contactFile.id, phones: selectedContacts });
+		} else {
+			contacts.phones = uniq(contacts.phones.concat(selectedContacts));
+		}
+		if (data.mode === 'offline') {
+			await mutations.writeMetadata(node!.id, parsedMetadata);
+		} else {
+			const formData = new FormData();
+			formData.set('node', JSON.stringify({ id: node!.id, metadata: parsedMetadata }));
+			const result = await fetcher(nodesPutOutputSchema, '/api/v1/nodes/by-id', {
+				method: 'PUT',
+				body: formData
 			});
-		}, '%.contacts');
+			if (!result.success) {
+				toastErrors(result.errors);
+			}
+		}
+		await invalidate(`list:${node!.id}`);
 	}
 
 	$actions = [
@@ -137,7 +147,7 @@
 			accessor: (contact) => contact,
 			header: '',
 			cell: ({ value }) => {
-				return createRender(DataTableActions, { contact: value, nodeId: node!.id });
+				return createRender(DataTableActions, { contact: value, node: node! });
 			}
 		})
 	]);

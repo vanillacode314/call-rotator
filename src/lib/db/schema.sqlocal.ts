@@ -18,7 +18,7 @@ const nodes = sqliteTable(
 );
 
 const nodeSchema = createSelectSchema(nodes, {
-	metadata: z.record(z.string(), z.unknown())
+	metadata: z.record(z.string(), z.unknown()).nullable()
 });
 
 declare global {

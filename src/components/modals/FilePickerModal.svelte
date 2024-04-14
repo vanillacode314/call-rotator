@@ -2,13 +2,17 @@
 	import { writable } from '@square/svelte-store';
 
 	const open = writable<boolean>(false);
-	const onPick = writable<(file: TNode | null) => void>(() => {});
 	const pattern = writable<string>('');
+	let _resolve: (file: TNode | null) => void = () => {};
+	let _reject: (file: TNode | null) => void = () => {};
 
-	function openFilePicker(_onPick: (file: TNode | null) => void, _pattern: string = '') {
-		onPick.set(_onPick);
+	function openFilePicker(_pattern: string = '') {
 		open.set(true);
 		pattern.set(_pattern);
+		return new Promise<TNode | null>((resolve, reject) => {
+			_resolve = resolve;
+			_reject = reject;
+		});
 	}
 
 	export { openFilePicker };
@@ -21,33 +25,56 @@
 	import PathCrumbs from '../PathCrumbs.svelte';
 	import { query } from '$/lib/db/utils/nodes';
 	import { tick } from 'svelte';
+	import { page } from '$app/stores';
+	import { getOutputSchema as nodesGetOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-path/schema';
+	import { toastErrors } from '$/utils';
+	import { createFetcher } from '$/utils/zod';
 
 	let pwd = '/';
 	let folders: TNode[] = [],
 		files: TNode[] = [];
 	let children: TNode[] | null = null;
 	$: $open && updateNodes(pwd);
+	const fetcher = createFetcher(fetch);
 
 	async function updateNodes(pwd: string) {
 		const interval = setTimeout(() => (children = null), 300);
-		children = (
-			await Promise.all([
-				query.getChildrenByPath(pwd, { returns: 'dir' }),
-				query.getChildrenByPath(pwd, { returns: 'files', pattern: $pattern })
-			])
-		).flat();
+		if ($page.data.mode === 'offline') {
+			children = (
+				await Promise.all([
+					query.getChildrenByPath(pwd, { returns: 'dir' }).then(([, v]) => v ?? []),
+					query
+						.getChildrenByPath(pwd, { returns: 'files', pattern: $pattern })
+						.then(([, v]) => v ?? [])
+				])
+			).flat();
+		} else {
+			const searchParams = new URLSearchParams();
+			searchParams.set('path', pwd);
+			searchParams.set('includeChildren', 'true');
+			const result = await fetcher(
+				nodesGetOutputSchema,
+				'/api/v1/nodes/by-path?' + searchParams.toString()
+			);
+			if (!result.success) {
+				toastErrors(result.errors);
+				return;
+			}
+			({ children } = result.data);
+		}
 		clearInterval(interval);
-		folders.length = 0;
-		files.length = 0;
-		await tick();
+		if (children === null) return;
 		if (pwd !== '/') {
-			folders.push({
-				id: -1,
+			children.unshift({
+				id: $page.data.node.parent_id,
 				name: '..',
 				parent_id: null,
 				metadata: null
 			});
 		}
+		folders.length = 0;
+		files.length = 0;
+		await tick();
 		for (const node of children) {
 			if (node.metadata === null) {
 				folders.push(node);
@@ -90,7 +117,7 @@
 								variant="secondary"
 								class="flex items-center justify-start gap-2"
 								on:click={() => {
-									$onPick(file);
+									_resolve(file);
 									$open = false;
 								}}
 							>
@@ -105,7 +132,7 @@
 				<Button
 					type="button"
 					on:click={() => {
-						$onPick(null);
+						_resolve(null);
 						$open = false;
 					}}>Cancel</Button
 				>

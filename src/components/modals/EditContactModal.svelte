@@ -8,34 +8,52 @@
 	import { Button } from '$/components/ui/button';
 	import * as Dialog from '$/components/ui/dialog';
 	import { mutations } from '$/lib/db/utils/nodes';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { contactMetadataSchema } from '$/types/contact';
 	import { useClipboard } from '$/stores/clipboard';
 	import ContactForm from './ContactForm.svelte';
+	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { createFetcher } from '$/utils/zod';
+	import { page } from '$app/stores';
 
 	const clipboard = useClipboard();
+
+	const fetcher = createFetcher(fetch);
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
-			const formData = parseFormData(
+			const data = parseFormData(
 				e.target as HTMLFormElement,
 				contactMetadataSchema.shape.contacts
 					.removeDefault()
 					.element.extend({ phone: z.string().optional() })
 			);
-			const originalPhone = $clipboard.contacts[0].phone;
-			formData.phone = formData.phone ?? originalPhone;
-			const nodeId = $clipboard.nodes[0];
-			await mutations.updateMetadata(nodeId, (metadata) => {
-				const parsedMetadata = contactMetadataSchema.parse(metadata);
-				const contact = parsedMetadata.contacts.find((contact) => contact.phone === originalPhone);
-				if (!contact) throw new Error('Contact not found');
-				Object.assign(contact, formData);
-				return parsedMetadata;
-			});
-			invalidate(`contact:${nodeId}`);
+			data.phone = data.phone ?? $clipboard.contacts[0].phone;
+			const node = $clipboard.nodes[0];
+			const parsedMetadata = contactMetadataSchema.parse(node.metadata);
+			const contact = parsedMetadata.contacts.find(
+				(contact) => contact.phone === $clipboard.contacts[0].phone
+			);
+			if (!contact) throw new Error('Contact not found');
+			Object.assign(contact, data);
+
+			if ($page.data.mode === 'offline') {
+				await mutations.writeMetadata(node.id, parsedMetadata);
+			} else {
+				const formData = new FormData();
+				formData.set('node', JSON.stringify({ id: node.id, metadata: parsedMetadata }));
+				const result = await fetcher(nodesPutOutputSchema, `/api/v1/nodes/by-id`, {
+					method: 'PUT',
+					body: formData
+				});
+				if (!result.success) {
+					toastErrors(result.errors);
+					return;
+				}
+			}
+			await invalidate(`contact:${node.id}`);
 		} finally {
 			$editContactModalOpen = false;
 		}

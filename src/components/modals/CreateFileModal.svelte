@@ -10,12 +10,15 @@
 	import { Input } from '$/components/ui/input';
 	import * as Select from '$/components/ui/select';
 	import { mutations, query } from '$/lib/db/utils/nodes';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { VALID_FILETYPES } from '$/consts';
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
+	import { postOutputSchema as nodesPostOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { createFetcher } from '$/utils/zod';
 
 	$: pwd = decodeURI($page.url.pathname);
+	const fetcher = createFetcher(fetch);
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -24,12 +27,26 @@
 				e.target as HTMLFormElement,
 				z.object({ name: z.string(), filetype: z.string() })
 			);
-			await mutations.createNode({
+			const formData = new FormData(e.target as HTMLFormElement);
+
+			const node = {
 				name: name + filetype,
-				parent_id: (await query.getNodeByPath(pwd)).id,
+				parent_id: $page.data.node.id,
 				metadata: {}
-			});
-			invalidate(`pwd:${pwd}`);
+			};
+			formData.set('node', JSON.stringify(node));
+			if ($page.data.mode === 'offline') {
+				await mutations.createNode(node);
+			} else {
+				const result = await fetcher(nodesPostOutputSchema, `/api/v1/nodes/by-id`, {
+					method: 'POST',
+					body: formData
+				});
+				if (!result.success) {
+					toastErrors(result.errors);
+				}
+			}
+			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$createFileModalOpen = false;
 		}

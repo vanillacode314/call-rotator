@@ -1,6 +1,5 @@
 <script lang="ts">
 	import * as path from '$/utils/path';
-	import { cn } from '$/utils/ui';
 	import { Button } from '$/components/ui/button';
 	import { addFolderModalOpen } from '$/components/modals/CreateFolderModal.svelte';
 	import ContextMenuFolder from './ContextMenuFolder.svelte';
@@ -11,8 +10,13 @@
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import { mutations, query } from '$/lib/db/utils/nodes';
 	import { toast } from 'svelte-sonner';
+	import { createFetcher } from '$/utils/zod';
+	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { toastErrors } from '$/utils';
+	import { useTaskQueue, queueTask } from '$/stores/task-queue';
 
 	const { actions } = useActions();
+	const queue = useTaskQueue();
 
 	export let data;
 
@@ -23,17 +27,11 @@
 	$: children !== null && updateNodes(children);
 	$: isEmpty = children !== null && folders.length + files.length === 0;
 
+	const fetcher = createFetcher(fetch);
+
 	async function updateNodes(children: TNode[]) {
 		folders.length = 0;
 		files.length = 0;
-		if (pwd !== '/') {
-			folders.push({
-				id: (await query.getNodeByPath(path.join(pwd, '..'))).id,
-				name: '..',
-				parent_id: null,
-				metadata: null
-			});
-		}
 		for (const node of children!) {
 			if (node.metadata === null) {
 				folders.push(node);
@@ -100,6 +98,7 @@
 						on:dragenter={(event) => {
 							event.preventDefault();
 							const el = event.target;
+							// @ts-ignore
 							el.classList.add('ring');
 							const dt = event.dataTransfer;
 							if (!dt) return;
@@ -108,10 +107,10 @@
 						on:dragleave={(event) => {
 							event.preventDefault();
 							const el = event.target;
+							// @ts-ignore
 							el.classList.remove('ring');
 						}}
-						on:drop={(event) => {
-							event.preventDefault();
+						on:drop|preventDefault={async (event) => {
 							const dt = event.dataTransfer;
 							if (!dt) return;
 							const id = Number(dt.getData('text/plain'));
@@ -119,8 +118,21 @@
 								toast.error('Cannot move folder to itself');
 								return;
 							}
-							mutations.moveNode(id, folder.id).then(() => {
-								invalidate(`pwd:${pwd}`);
+							queueTask(queue, 'Moving', async () => {
+								if (data.mode === 'offline') {
+									await mutations.moveNode(id, folder.id);
+								} else {
+									const formData = new FormData();
+									formData.append('node', JSON.stringify({ id, parent_id: folder.id }));
+									const result = await fetcher(nodesPutOutputSchema, `/api/v1/nodes/by-id`, {
+										method: 'PUT',
+										body: formData
+									});
+									if (!result.success) {
+										toastErrors(result.errors);
+									}
+								}
+								await invalidate(`pwd:${pwd}`);
 							});
 						}}
 						draggable="true"

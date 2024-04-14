@@ -3,7 +3,7 @@ import { getContext, setContext } from 'svelte';
 
 type TClipboardContext = Writable<{
 	contacts: TContact[];
-	nodes: TNode['id'][];
+	nodes: TNode[];
 }>;
 
 function useClipboard() {

@@ -10,4 +10,4 @@ function reset() {
 		.then((root) => root.removeEntry('database.sqlite3', { recursive: true }));
 }
 
-export { db, reset };
+export { db, dbx, reset };

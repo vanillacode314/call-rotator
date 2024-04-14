@@ -1,4 +1,6 @@
+import { toast } from 'svelte-sonner';
 import type z from 'zod';
+
 function parseFormData<T extends z.ZodTypeAny>(form: HTMLFormElement, schema: T): z.infer<T> {
 	return schema.parse(Object.fromEntries(new FormData(form)));
 }
@@ -41,12 +43,34 @@ function formatDate(date: Date) {
 	return `${year}-${month}-${day}`;
 }
 
+function toastErrors(errors: TError[]) {
+	for (const error of errors) {
+		toast.error(error.code.replace(/_/g, ' '), { description: error.message });
+	}
+}
+
+function sleep(ms: number) {
+	return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
+function isValidJSON(json: string) {
+	try {
+		JSON.parse(json);
+		return true;
+	} catch (e) {
+		return false;
+	}
+}
+
 export {
 	asyncMap,
 	filterInPlace,
 	formatDate,
 	isEmpty,
+	isValidJSON,
 	parseFormData,
 	safeParseFormData,
-	selectInputById
+	selectInputById,
+	sleep,
+	toastErrors
 };

@@ -11,12 +11,19 @@
 	import { alert } from '$/components/modals/AlertModal.svelte';
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
+	import { createFetcher } from '$/utils/zod';
+	import { deleteOutputSchema as nodesDeleteOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { toastErrors } from '$/utils';
+	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 
-	const { selectedNode, nodes } = useFileSystem();
+	const { selectedNode } = useFileSystem();
+	const queue = useTaskQueue();
 
 	$: pwd = decodeURI($page.url.pathname);
 
 	export let folder: TNode;
+
+	const fetcher = createFetcher(fetch);
 </script>
 
 <ContextMenu>
@@ -26,7 +33,25 @@
 			on:click={() => {
 				alert('Delete Folder', 'Are you sure you want to delete this folder?', {
 					icon: 'i-carbon:trash-can',
-					onYes: () => mutations.removeNode(folder.id).then(() => invalidate(`pwd:${pwd}`))
+					async onYes() {
+						queueTask(queue, 'Deleting', async () => {
+							if ($page.data.mode === 'offline') {
+								await mutations.removeNode(folder.id);
+							} else {
+								const result = await fetcher(
+									nodesDeleteOutputSchema,
+									`/api/v1/nodes/by-id?id=${folder.id}`,
+									{
+										method: 'DELETE'
+									}
+								);
+								if (!result.success) {
+									toastErrors(result.errors);
+								}
+							}
+							await invalidate(`pwd:${pwd}`);
+						});
+					}
 				});
 			}}
 		>

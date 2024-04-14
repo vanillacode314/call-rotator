@@ -8,24 +8,41 @@
 	import * as Dialog from '$/components/ui/dialog';
 	import { mutations } from '$/lib/db/utils/nodes';
 	import { useFileSystem } from '$/stores/filesystem';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { contactMetadataSchema } from '$/types/contact';
 	import { parseMetadata } from '$/utils/types';
 	import ContactForm from './ContactForm.svelte';
+	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { createFetcher } from '$/utils/zod';
+	import { page } from '$app/stores';
 
-	const { selectedNode, nodes } = useFileSystem();
+	const { selectedNode } = useFileSystem();
+
+	const fetcher = createFetcher(fetch);
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
-			const formData = parseFormData(
+			const data = parseFormData(
 				e.target as HTMLFormElement,
 				contactMetadataSchema.shape.contacts.removeDefault().element
 			);
 			const { metadata } = parseMetadata($selectedNode!, contactMetadataSchema);
-			metadata.contacts.push(formData);
-			await mutations.writeMetadata($selectedNode!.id, metadata);
-			invalidate(`contact:${$selectedNode!.id}`);
+			metadata.contacts.push(data);
+			if ($page.data.mode === 'offline') {
+				await mutations.writeMetadata($selectedNode!.id, metadata);
+			} else {
+				const formData = new FormData();
+				formData.set('node', JSON.stringify({ id: $selectedNode!.id, metadata }));
+				const result = await fetcher(nodesPutOutputSchema, `/api/v1/nodes/by-id`, {
+					method: 'PUT',
+					body: formData
+				});
+				if (!result.success) {
+					toastErrors(result.errors);
+				}
+			}
+			await invalidate(`contact:${$selectedNode!.id}`);
 		} finally {
 			$newContactModalOpen = false;
 		}
