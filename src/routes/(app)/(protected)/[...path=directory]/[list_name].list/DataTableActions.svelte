@@ -6,7 +6,6 @@
 	import { editContactModalOpen } from '$/components/modals/EditContactModal.svelte';
 	import { alert } from '$/components/modals/AlertModal.svelte';
 	import { mutations } from '$/lib/db/utils/nodes';
-	import { contactMetadataSchema } from '$/types/contact';
 	import { invalidate } from '$app/navigation';
 	import { filterInPlace, toastErrors } from '$/utils';
 	import { showTextModal } from '$/components/modals/TextModal.svelte';

@@ -1,6 +1,6 @@
 import { json, redirect, type Handle } from '@sveltejs/kit';
 import { db } from './lib/db/libsql.db';
-import { responseSchema as getSessionResponseSchema } from './routes/api/v1/get-session/schema';
+import { getSession } from './routes/api/v1/get-session/utils';
 import { createFetcher } from './utils/zod';
 
 const handle: Handle = async ({ event, resolve }) => {
@@ -9,14 +9,14 @@ const handle: Handle = async ({ event, resolve }) => {
 		return resolve(event);
 	}
 	const fetcher = createFetcher(event.fetch);
-	const { data: user } = await fetcher(getSessionResponseSchema, '/api/v1/get-session');
-	event.locals.user = user;
+	const token = event.cookies.get('sessionToken');
+	event.locals.user = await getSession(token, db);
 	event.locals.mode = event.cookies.get('mode') === 'offline' ? 'offline' : 'online';
 	if (event.cookies.get('mode') === undefined)
-		event.cookies.set('mode', event.locals.mode, { path: '/', httpOnly: false });
+		event.cookies.set('mode', event.locals.mode, { path: '/', httpOnly: false, secure: true });
 
 	if (event.locals.mode === 'online') {
-		if (user === null) {
+		if (event.locals.user === null) {
 			if (event.route.id?.includes('api') && event.route.id?.includes('(protected)')) {
 				return json(
 					{
