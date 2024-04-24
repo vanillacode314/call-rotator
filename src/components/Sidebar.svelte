@@ -2,9 +2,6 @@
 	import { Button } from '$/components/ui/button';
 	import { useActions } from '$/stores/actions';
 	import { cn } from '$/utils/ui';
-	import { Label } from '$/components/ui/label/index.js';
-	import { Switch } from '$/components/ui/switch/index.js';
-	import { page } from '$app/stores';
 	import { useTaskQueue } from '$/stores/task-queue';
 
 	const { actions } = useActions();
@@ -39,16 +36,4 @@
 			</li>
 		{/each}
 	</ul>
-	<div class="flex items-center justify-end space-x-2">
-		<Label class="text-xs uppercase tracking-wider" for="toggle-offline-mode">Offline</Label>
-		<Switch
-			id="toggle-offline-mode"
-			checked={$page.data.mode === 'online'}
-			onCheckedChange={(value) => {
-				document.cookie = `mode=${value ? 'online' : 'offline'}; path=/;`;
-				window.location.reload();
-			}}
-		/>
-		<Label class="text-xs uppercase tracking-wider" for="toggle-offline-mode">Online</Label>
-	</div>
 </div>

@@ -18,7 +18,7 @@
 		<Button
 			on:click={() => {
 				document.cookie = `mode=${$page.data.mode === 'offline' ? 'online' : 'offline'}; path=/;`;
-				window.location.reload();
+				window.location.pathname = '/';
 			}}
 			variant="outline"
 			size="icon"
