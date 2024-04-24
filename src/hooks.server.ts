@@ -1,16 +1,14 @@
 import { json, redirect, type Handle } from '@sveltejs/kit';
 import { db } from './lib/db/libsql.db';
 import { getSession } from './routes/api/v1/get-session/utils';
-import { createFetcher } from './utils/zod';
 
 const handle: Handle = async ({ event, resolve }) => {
 	event.locals.db = db;
 	if (event.url.pathname === '/api/v1/get-session') {
 		return resolve(event);
 	}
-	const fetcher = createFetcher(event.fetch);
-	const token = event.cookies.get('sessionToken');
-	event.locals.user = await getSession(token, db);
+	const token = event.cookies.get('jwtToken');
+	event.locals.user = await getSession(token);
 	event.locals.mode = event.cookies.get('mode') === 'offline' ? 'offline' : 'online';
 	if (event.cookies.get('mode') === undefined)
 		event.cookies.set('mode', event.locals.mode, { path: '/', httpOnly: false, secure: true });

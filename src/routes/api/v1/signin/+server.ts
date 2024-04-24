@@ -1,7 +1,9 @@
-import { sessions, users } from '$/lib/db/schema.libsql';
+import { userSchema, users } from '$/lib/db/schema.libsql';
+import { AUTH_SECRET } from '$env/static/private';
 import { json, redirect } from '@sveltejs/kit';
 import bcrypt from 'bcrypt';
 import { count, eq } from 'drizzle-orm';
+import jwt from 'jsonwebtoken';
 import type { RequestHandler } from './$types';
 import { formDataSchema } from './schema';
 
@@ -40,7 +42,7 @@ export const POST = (async (event) => {
 		);
 	}
 
-	const [user] = await db.select({ id: users.id, password: users.password }).from(users);
+	const [user] = await db.select().from(users);
 	if (!(await bcrypt.compare(password, user.password))) {
 		return json(
 			{
@@ -56,16 +58,10 @@ export const POST = (async (event) => {
 		);
 	}
 
-	const [session] = await db
-		.insert(sessions)
-		.values({
-			expires: new Date(Date.now() + 1000 * 60 * 60 * 24 * 30),
-			userId: user.id,
-			token: Math.random().toString(36).substring(2)
-		})
-		.returning({ token: sessions.token });
-
-	event.cookies.set('sessionToken', session.token, {
+	const token = jwt.sign(userSchema.omit({ password: true }).parse(user), AUTH_SECRET, {
+		expiresIn: 365 * 24 * 60 * 60
+	});
+	event.cookies.set('jwtToken', token, {
 		path: '/',
 		secure: true,
 		httpOnly: true,

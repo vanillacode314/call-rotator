@@ -17,13 +17,13 @@ const users = sqliteTable('user', {
 	// image: text('image')
 });
 
-const sessions = sqliteTable('session', {
-	token: text('token').notNull().primaryKey(),
-	userId: integer('userId')
-		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' }),
-	expires: integer('expires', { mode: 'timestamp_ms' }).notNull()
-});
+// const sessions = sqliteTable('session', {
+// 	token: text('token').notNull().primaryKey(),
+// 	userId: integer('userId')
+// 		.notNull()
+// 		.references(() => users.id, { onDelete: 'cascade' }),
+// 	expires: integer('expires', { mode: 'timestamp_ms' }).notNull()
+// });
 
 const verificationTokens = sqliteTable(
 	'verificationToken',
@@ -62,7 +62,7 @@ const nodeSchema = createSelectSchema(nodes, {
 	metadata: z.record(z.string(), z.unknown()).nullable()
 });
 
-export { nodeSchema, nodes, sessions, userSchema, users, verificationTokens };
+export { nodeSchema, nodes, userSchema, users, verificationTokens };
 
 declare global {
 	type TUser = z.TypeOf<typeof userSchema>;
