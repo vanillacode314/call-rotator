@@ -1,0 +1,19 @@
+{
+  "name": "proto",
+  "version": "1.0.0",
+  "exports": {
+    "./*": "./dist/ts/*.ts"
+  },
+  "scripts": {
+    "build": "npm run build:ts",
+    "build:ts": "bash -c 'mkdir -p ./dist/ts && protoc --ts_out ./dist/ts --proto_path src $(fd -e proto . src)'"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "description": "",
+  "dependencies": {
+    "@protobuf-ts/plugin": "^2.9.4",
+    "@protobuf-ts/runtime": "^2.9.4"
+  }
+}

@@ -1,0 +1,49 @@
+syntax = "proto3";
+
+import "api.proto";
+import "db/nodes.proto";
+
+message GetNodeByIdRequestV1 {
+  int64 id = 1;
+  bool includeChildren = 2;
+}
+
+message GetNodeByIdResponseV1 {
+  message Data {
+    Node node = 1;
+    repeated Node children = 2;
+  }
+  oneof result {
+    ApiError error = 1;
+    Data data = 2;
+  }
+  int32 status = 3;
+}
+
+message PutNodeByIdRequestV1 {
+  Node node = 1;
+}
+
+message PutNodeByIdResponseV1 {
+  message Data {
+    Node node = 1;
+  }
+  oneof result {
+    ApiError error = 1;
+    Data data = 2;
+  }
+  int32 status = 3;
+}
+
+message DeleteNodeByIdRequestV1 {
+  int64 id = 1;
+}
+
+message DeleteNodeByIdResponseV1 {
+  message Data {}
+  oneof result {
+    ApiError error = 1;
+    Data data = 2;
+  }
+  int32 status = 3;
+}

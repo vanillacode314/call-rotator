@@ -1,0 +1,20 @@
+syntax = "proto3";
+
+import "api.proto";
+import "db/nodes.proto";
+
+message GetNodesByPathRequestV1 {
+  bool includeChildren = 1;
+}
+
+message GetNodesByPathResponseV1 {
+  message Data {
+    Node node = 1;
+    repeated Node children = 2;
+  }
+  oneof result {
+    ApiError error = 1;
+    Data data = 2;
+  }
+  int32 status = 3;
+}

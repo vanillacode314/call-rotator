@@ -1,0 +1,7 @@
+syntax = "proto3";
+
+message VerificationToken {
+  string identifier = 1;
+  string token = 2;
+  int64 expires = 3;
+}

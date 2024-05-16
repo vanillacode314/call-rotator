@@ -1,0 +1,5 @@
+const VALID_FILETYPES = ['.list'] as const;
+const ROOT_NODE_ID = 0;
+const DEFAULT_LOCAL_USER_ID = 0;
+
+export { DEFAULT_LOCAL_USER_ID, ROOT_NODE_ID, VALID_FILETYPES };

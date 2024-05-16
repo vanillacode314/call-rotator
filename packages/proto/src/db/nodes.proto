@@ -1,0 +1,9 @@
+syntax = "proto3";
+
+message Node {
+  int64 id = 1;
+  string name = 2;
+  int64 parentId = 3;
+  int64 listId = 4;
+  int64 userId = 5;
+}
