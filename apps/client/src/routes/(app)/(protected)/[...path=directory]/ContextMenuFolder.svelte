@@ -10,11 +10,9 @@
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import { createFetcher } from '$/utils/zod';
-	import { deleteOutputSchema as nodesDeleteOutputSchema } from 'db/queries/v1/nodes/by-id/schema';
-	import { toastErrors } from '$/utils';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 	import { useClipboard } from '$/stores/clipboard';
-	import { deleteNode } from 'db/queries/v1/nodes/by-id';
+	import { deleteNode } from 'db/queries/v1/nodes/by-id/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
 	const clipboard = useClipboard();
@@ -37,7 +35,7 @@
 					async onYes() {
 						queueTask(queue, 'Deleting', async () => {
 							const db = await getSQLocalClient();
-							await deleteNode(db, { id: folder.id });
+							await deleteNode(db, $page.data.user.id, folder.id);
 							await invalidate(`pwd:${pwd}`);
 						});
 					}

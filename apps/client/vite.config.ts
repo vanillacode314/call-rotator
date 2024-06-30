@@ -1,5 +1,4 @@
 import { sveltekit } from '@sveltejs/kit/vite';
-import path from 'path';
 import Unocss from 'unocss/vite';
 import AutoImport from 'unplugin-auto-import/vite';
 import { defineConfig } from 'vitest/config';
@@ -32,10 +31,5 @@ export default defineConfig({
 	],
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
-	},
-	resolve: {
-		alias: {
-			'~db': path.resolve(__dirname, 'node_modules/db')
-		}
 	}
 });

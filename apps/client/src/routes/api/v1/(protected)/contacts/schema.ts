@@ -1,6 +1,6 @@
 import { errorSchema } from '$/types';
 import { isValidJSON } from '$/utils';
-import { contactSchema } from 'db/schema';
+import { contactSchema } from 'schema/db';
 import { z } from 'zod';
 
 const getInputSchema = z.object({

@@ -5,32 +5,34 @@
 	import { Input } from '$/components/ui/input/index.js';
 	import { Label } from '$/components/ui/label/index.js';
 	import { toastErrors } from '$/utils';
-	import { SignUpResponseV1 } from 'proto/api/v1/signup';
+	import { SignUpResponseV1Schema } from 'schema/routes/api/v1/signup';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { getSQLocalClient, seed } from '$/lib/db/sqlocal.client';
+	import { jwtDecode } from 'jwt-decode';
 
 	async function onSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		const { result } = SignUpResponseV1.fromBinary(
+		const response = SignUpResponseV1Schema.parse(
 			await fetch(PUBLIC_API_BASE_URL + '/api/v1/signin', {
 				method: 'POST',
-				body: formData,
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify(Object.fromEntries(formData)),
 				redirect: 'manual'
-			})
-				.then((res) => res.arrayBuffer())
-				.then((buf) => new Uint8Array(buf))
+			}).then((res) => res.json())
 		);
-		switch (result.oneofKind) {
-			case 'error':
-				toastErrors(result.error.issues);
-				break;
-			case 'data':
-				const { token } = result.data;
-				token && localStorage.setItem('jwtToken', token);
-				break;
+		if (!response.success) {
+			toastErrors(response.result.issues);
+			return;
 		}
+		const { token } = response.result;
+		const user = jwtDecode(token) as TUser;
+		token && localStorage.setItem('jwtToken', token);
+		const db = await getSQLocalClient();
+		await seed(db, user.id);
 		window.location.reload();
-
 	}
 
 	let passwordVisible: boolean = false;

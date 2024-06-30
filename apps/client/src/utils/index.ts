@@ -1,4 +1,4 @@
-import { ErrorCode, Issue } from 'proto/api';
+import { type TIssue } from 'schema/api';
 import { toast } from 'svelte-sonner';
 import type z from 'zod';
 
@@ -44,9 +44,9 @@ function formatDate(date: Date) {
 	return `${year}-${month}-${day}`;
 }
 
-function toastErrors(issues: Issue[]) {
+function toastErrors(issues: TIssue[]) {
 	for (const { message, code } of issues) {
-		toast.error(ErrorCode[code].replace(/_/g, ' '), { description: message });
+		toast.error(code.replace(/_/g, ' '), { description: message });
 	}
 }
 

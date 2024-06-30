@@ -2,18 +2,17 @@ import { isServer } from '$/consts/sveltekit';
 import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 import * as path from '$/utils/path';
 import { error } from '@sveltejs/kit';
-import { DEFAULT_LOCAL_USER_ID } from 'db/consts';
-import { getNodeByPath } from 'db/queries/v1/nodes/by-path';
+import { getNodeByPath } from 'db/queries/v1/nodes/by-path/index';
 import type { PageLoad } from './$types';
 
 export const load = (async ({ parent, params, depends, fetch }) => {
-	const { mode } = await parent();
+	const { user } = await parent();
 	const pwd = `${path.join('/', params.path)}`;
 	depends(`pwd:${pwd}`);
 	let children: TNode[] | null = null;
 	let node: TNode | null = null;
 	const db = await getSQLocalClient();
-	const data = isServer ? null : await getNodeByPath(db, { path: pwd, includeChildren: true });
+	const data = isServer ? null : await getNodeByPath(db, user!.id, pwd, { includeChildren: true });
 	if (data !== null) {
 		node = data.node;
 		children = data.children;
@@ -24,7 +23,7 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 			name: '..',
 			parentId: null,
 			listId: null,
-			userId: DEFAULT_LOCAL_USER_ID
+			userId: user!.id
 		});
 	}
 

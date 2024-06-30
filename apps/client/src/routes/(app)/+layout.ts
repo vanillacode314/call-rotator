@@ -2,22 +2,29 @@ import { isOnline } from '$/stores/online';
 import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { get } from '@square/svelte-store';
 import { redirect } from '@sveltejs/kit';
-import { GetSessionResponseV1 } from 'proto/api/v1/get-session';
+import { jwtDecode } from 'jwt-decode';
+import { GetSessionResponseV1Schema } from 'schema/routes/api/v1/get-session';
 import type { LayoutLoad } from './$types';
 
 export const load: LayoutLoad = async (event) => {
-	const { user = undefined } = get(isOnline)
-		? GetSessionResponseV1.fromBinary(
+	const token = localStorage.getItem('jwtToken');
+	if (token === null) {
+		if (event.route.id?.includes('(protected)')) {
+			redirect(307, '/signin');
+		}
+		return { user: null };
+	}
+	const { user = null } = get(isOnline)
+		? GetSessionResponseV1Schema.parse(
 				await event
 					.fetch(PUBLIC_API_BASE_URL + '/api/v1/get-session', {
 						headers: {
-							Authorization: `Bearer ${localStorage.getItem('jwtToken')}`
+							Authorization: `Bearer ${token}`
 						}
 					})
-					.then((res) => res.arrayBuffer())
-					.then((buf) => new Uint8Array(buf))
+					.then((res) => res.json())
 			)
-		: {};
+		: (jwtDecode(token) as { user: TUser });
 
 	if (user === undefined) {
 		if (event.route.id?.includes('(protected)')) {

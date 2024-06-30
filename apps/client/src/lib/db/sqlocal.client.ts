@@ -1,6 +1,6 @@
 import { showMigrateModal } from '$/components/modals/MigrationModal.svelte';
-import { ROOT_NODE_ID } from '$/consts';
-import { sql } from 'drizzle-orm';
+import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+import { and, eq, sql } from 'drizzle-orm';
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
 import { nodes, users } from './schema';
 import { MIGRATIONS } from './sqlocal.migrations';
@@ -46,20 +46,26 @@ async function runMigrations(db: SqliteRemoteDatabase) {
 	}
 }
 
-async function seed(db: SqliteRemoteDatabase) {
+async function seed(db: SqliteRemoteDatabase, userId = DEFAULT_LOCAL_USER_ID) {
 	await db
 		.insert(users)
 		.values({
 			email: 'local@local.com',
 			password: 'password',
-			id: 0,
+			id: userId,
 			emailVerified: sql`datetime ('now')`
 		})
 		.onConflictDoNothing();
-	await db
-		.insert(nodes)
-		.values({ name: 'root', parentId: null, listId: null, id: ROOT_NODE_ID, userId: 0 })
-		.onConflictDoNothing();
+	const rows = await db
+		.select()
+		.from(nodes)
+		.where(and(eq(nodes.name, 'root'), eq(nodes.userId, userId)))
+		.limit(1);
+	if (rows.length === 0)
+		await db
+			.insert(nodes)
+			.values({ name: 'root', parentId: null, listId: null, userId })
+			.onConflictDoNothing();
 }
 
-export { getRawSQLocalClient, getSQLocalClient };
+export { getRawSQLocalClient, getSQLocalClient, seed };

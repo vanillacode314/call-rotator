@@ -9,23 +9,20 @@
 	import { parseFormData } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import ContactForm from './ContactForm.svelte';
-	import { createFetcher } from '$/utils/zod';
 	import { page } from '$app/stores';
-	import { postContact } from '$/routes/api/v1/(protected)/contacts/local';
-	import { postInputSchema as contactsPostInputSchema } from '$/routes/api/v1/(protected)/contacts/schema';
+	import { postContact } from 'db/queries/v1/contacts/index';
+	import { PostContactsRequestV1Schema } from 'schema/routes/api/v1/contacts/index';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
-	const fetcher = createFetcher(fetch);
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
 			const data = parseFormData(
 				e.target as HTMLFormElement,
-				contactsPostInputSchema.shape.contact
+				PostContactsRequestV1Schema.shape.contact
 			);
-			if ($page.data.mode === 'offline') {
-				await postContact({ contact: data });
-			} else {
-			}
+			const db = await getSQLocalClient();
+			await postContact(db, $page.data.user.id, { contact: data });
 			await invalidate(`contacts:contacts`);
 		} finally {
 			$newContactModalOpen = false;

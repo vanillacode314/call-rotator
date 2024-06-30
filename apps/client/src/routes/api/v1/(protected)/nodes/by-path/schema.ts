@@ -1,5 +1,5 @@
 import { errorSchema } from '$/types';
-import { nodeSchema } from 'db/schema';
+import { nodeSchema } from 'schema/db';
 import { z } from 'zod';
 
 const getInputSchema = z.object({

@@ -6,12 +6,20 @@ export const MIGRATIONS = [
 	`
 CREATE TABLE \`contacts\` (
 	\`id\` integer PRIMARY KEY NOT NULL,
-	\`phone\` integer NOT NULL,
+	\`phone\` text NOT NULL,
 	\`name\` text NOT NULL,
 	\`notes\` text DEFAULT '' NOT NULL,
-	\`tags\` text DEFAULT '[]',
+	\`tags\` text DEFAULT '[]' NOT NULL,
 	\`userId\` integer NOT NULL,
 	FOREIGN KEY (\`userId\`) REFERENCES \`users\`(\`id\`) ON UPDATE no action ON DELETE cascade
+);
+--> statement-breakpoint
+CREATE TABLE \`list_contact\` (
+	\`listId\` integer NOT NULL,
+	\`contactId\` integer NOT NULL,
+	PRIMARY KEY(\`contactId\`, \`listId\`),
+	FOREIGN KEY (\`listId\`) REFERENCES \`lists\`(\`id\`) ON UPDATE no action ON DELETE cascade,
+	FOREIGN KEY (\`contactId\`) REFERENCES \`contacts\`(\`id\`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
 CREATE TABLE \`lists\` (
@@ -49,5 +57,6 @@ CREATE TABLE \`verificationTokens\` (
 --> statement-breakpoint
 CREATE UNIQUE INDEX \`contacts_phone_userId_unique\` ON \`contacts\` (\`phone\`,\`userId\`);--> statement-breakpoint
 CREATE UNIQUE INDEX \`nodes_name_parentId_userId_unique\` ON \`nodes\` (\`name\`,\`parentId\`,\`userId\`);
+
 `
 ] as const;

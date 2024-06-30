@@ -20,9 +20,10 @@
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { createFetcher } from '$/utils/zod';
-	import { postOutputSchema } from 'db/queries/v1/nodes/schema';
-	import { postNode } from 'db/queries/v1/nodes';
+	import { postNode } from 'db/queries/v1/nodes/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { RESERVED_FILE_NAMES } from '$/consts';
+	import { toast } from 'svelte-sonner';
 
 	$: pwd = decodeURI($page.url.pathname);
 	const fetcher = createFetcher(fetch);
@@ -32,9 +33,17 @@
 		try {
 			const formData = new FormData(e.target as HTMLFormElement);
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
+			if (RESERVED_FILE_NAMES.includes(name.toLowerCase() as unknown as any)) {
+				toast.error('RESERVED NAME', {
+					description: `Please choose a different name. The name ${name} is reserved.`
+				});
+				return;
+			}
 			formData.set('node', JSON.stringify({ name, parent_id: $page.data.node.id, metadata: null }));
 			const db = await getSQLocalClient();
-			await postNode(db, { node: { name: name, parentId: $page.data.node.id, listId: null } });
+			await postNode(db, $page.data.user.id, {
+				node: { name: name, parentId: $page.data.node.id, listId: null }
+			});
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$addFolderModalOpen = false;

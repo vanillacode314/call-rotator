@@ -19,7 +19,7 @@
 	import { parseFormData, selectInputById } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { putNode } from 'db/queries/v1/nodes/by-id';
+	import { putNode } from 'db/queries/v1/nodes/by-id/index';
 	import { useClipboard } from '$/stores/clipboard';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
@@ -32,7 +32,7 @@
 		try {
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
 			const db = getSQLocalClient();
-			await putNode(db, { node: { id: node.id, name } });
+			await putNode(db, $page.data.user.id, node.id, { node: { name } });
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$renameFolderModalOpen = false;

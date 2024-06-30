@@ -1,5 +1,6 @@
 // See https://kit.svelte.dev/docs/types#app
 import type { LibSQLDatabase } from 'drizzle-orm/libsql';
+import type { TUser } from 'schema/db';
 
 // for information about these interfaces
 declare global {

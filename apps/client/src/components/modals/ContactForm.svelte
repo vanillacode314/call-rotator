@@ -20,6 +20,7 @@
 	}
 
 	function validateInput(event: KeyboardEvent) {
+		if (!event.key) return;
 		if (event.key.length === 1 && /[a-zA-z_]/.test(event.key)) {
 			event.preventDefault();
 		}

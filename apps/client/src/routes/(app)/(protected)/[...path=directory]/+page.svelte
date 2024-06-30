@@ -10,10 +10,11 @@
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import { toast } from 'svelte-sonner';
 	import { createFetcher } from '$/utils/zod';
-	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 	import { toastErrors } from '$/utils';
 	import { useTaskQueue, queueTask } from '$/stores/task-queue';
 	import { isServer } from '$/consts/sveltekit';
+	import { putNode } from '$/routes/api/v1/(protected)/nodes/by-id/local';
+	import { RESERVED_FILE_DATA_MAP, RESERVED_FILE_NAMES } from '$/consts';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
@@ -83,6 +84,24 @@
 		{/if}
 	{:else}
 		<ul
+			class="grid content-start items-start gap-2 border-b-2 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+		>
+			{#if pwd === '/'}
+				{#each RESERVED_FILE_NAMES as filename}
+					<li class="grid">
+						<Button
+							variant="secondary"
+							class="flex items-center justify-start gap-2"
+							on:click={() => goto(RESERVED_FILE_DATA_MAP[filename].url)}
+						>
+							<span class={RESERVED_FILE_DATA_MAP[filename].icon}></span>
+							<span class="truncate">{filename}</span>
+						</Button>
+					</li>
+				{/each}
+			{/if}
+		</ul>
+		<ul
 			class="grid h-full content-start items-start gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 		>
 			{#each folders as folder}
@@ -119,19 +138,7 @@
 								return;
 							}
 							queueTask(queue, 'Moving', async () => {
-								if (data.mode === 'offline') {
-									await mutations.moveNode(id, folder.id);
-								} else {
-									const formData = new FormData();
-									formData.append('node', JSON.stringify({ id, parent_id: folder.id }));
-									const result = await fetcher(nodesPutOutputSchema, `/api/v1/nodes/by-id`, {
-										method: 'PUT',
-										body: formData
-									});
-									if (!result.success) {
-										toastErrors(result.errors);
-									}
-								}
+								await putNode({ node: { id: folder.id, parentId: id } });
 								await invalidate(`pwd:${pwd}`);
 							});
 						}}

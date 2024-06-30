@@ -19,9 +19,9 @@
 	import { parseFormData, selectInputById } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
-	import { putNode } from 'db/queries/v1/nodes/by-id';
 	import { useClipboard } from '$/stores/clipboard';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { putNode } from 'db/queries/v1/nodes/by-id/index';
 
 	const clipboard = useClipboard();
 
@@ -34,7 +34,7 @@
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
 			const filetype = node.name.split('.').pop()!;
 			const db = await getSQLocalClient();
-			await putNode(db, { node: { id: node.id, name: `${name}.${filetype}` } });
+			await putNode(db, $page.data.user.id, node.id, { node: { name: `${name}.${filetype}` } });
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$renameFileModalOpen = false;

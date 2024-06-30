@@ -1,5 +1,5 @@
 {
-  "name": "cr",
+  "name": "client",
   "version": "0.0.1",
   "private": true,
   "scripts": {
@@ -73,9 +73,10 @@
     "drizzle-zod": "^0.5.1",
     "fuse.js": "^7.0.0",
     "jsonwebtoken": "^9.0.2",
+    "jwt-decode": "^4.0.0",
     "lucide-svelte": "^0.373.0",
     "mode-watcher": "^0.3.0",
-    "proto": "workspace:*",
+    "schema": "workspace:*",
     "sqlocal": "^0.8.0",
     "svelte-sonner": "^0.3.22",
     "tailwind-merge": "^2.3.0",

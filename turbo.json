@@ -4,9 +4,16 @@
     "build": {
       "outputs": [
         "dist/**"
+      ],
+      "dependsOn": [
+        "^build"
       ]
     },
     "type-check": {},
+    "dev": {
+      "cache": false,
+      "persistent": true
+    },
     "format": {}
   }
 }

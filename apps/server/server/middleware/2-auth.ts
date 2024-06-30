@@ -1,4 +1,4 @@
-import { ErrorCode, ErrorResponseV1 } from 'proto/api';
+import { ApiErrorCodeSchema } from 'schema/api';
 
 export default defineEventHandler(async (event) => {
 	const url = getRequestURL(event);
@@ -8,14 +8,13 @@ export default defineEventHandler(async (event) => {
 		const user = await getUser(getHeader(event, 'Authorization'));
 		if (!user) {
 			setResponseStatus(event, 401);
-			return ErrorResponseV1.toBinary({
+			return {
+				status: 401,
+				success: false,
 				result: {
-					oneofKind: 'errors',
-					errors: {
-						errors: [{ message: 'Unauthorized', code: ErrorCode.UNAUTHORIZED }]
-					}
+					issues: [{ message: 'Unauthorized', code: ApiErrorCodeSchema.enum.UNAUTHORIZED }]
 				}
-			});
+			};
 		}
 	}
 });

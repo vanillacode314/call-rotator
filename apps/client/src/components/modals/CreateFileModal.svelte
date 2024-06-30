@@ -14,7 +14,7 @@
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import { createFetcher } from '$/utils/zod';
-	import { postNode } from 'db/queries/v1/nodes';
+	import { postNode } from 'db/queries/v1/nodes/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
 	$: pwd = decodeURI($page.url.pathname);
@@ -35,7 +35,7 @@
 			};
 			formData.set('node', JSON.stringify(node));
 			const db = await getSQLocalClient();
-			await postNode(db, { node });
+			await postNode(db, $page.data.user.id, { node });
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$createFileModalOpen = false;

@@ -10,7 +10,8 @@
 	import { createFetcher } from '$/utils/zod';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 	import { page } from '$app/stores';
-	import { deleteContact } from '$/routes/api/v1/(protected)/contacts/local';
+	import { deleteContact } from 'db/queries/v1/contacts/index';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
@@ -19,10 +20,8 @@
 
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
-			if ($page.data.mode === 'offline') {
-				deleteContact({ id: contact.id });
-			} else {
-			}
+			const db = await getSQLocalClient();
+			await deleteContact(db, $page.data.user.id, contact.id);
 			await invalidate(`contacts:contacts`);
 		});
 	}
