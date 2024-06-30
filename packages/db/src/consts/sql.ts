@@ -3,112 +3,72 @@ const GET_NODES_BY_PATH_QUERY = (
 	userId: number,
 	includeChildren: boolean = false
 ) => {
-	const query = `WITH RECURSIVE
-  fs (n, path, id, next_part) AS (
-    SELECT
-      1,
-      __path,
-      (
-        SELECT
-          id
-        FROM
-          nodes
-        WHERE
-          nodes.parentId IS NULL
-          AND nodes.userId = __userid
-        LIMIT
-          1
-      ),
-      __firstpart
-    UNION
-    SELECT
-      n + 1,
-      substr (substr (path, 2), instr (substr (path, 2), '/')),
-      nodes.id,
-      iif (
-        instr (
-          substr (
-            path,
-            instr (path, next_part) + length (next_part) + 1
-          ),
-          '/'
-        ) - 1 = -1,
-        substr (
-          substr (
-            path,
-            instr (path, next_part) + length (next_part) + 1
-          ),
-          1
-        ),
-        substr (
-          substr (
-            path,
-            instr (path, next_part) + length (next_part) + 1
-          ),
-          1,
-          instr (
-            substr (
-              path,
-              instr (path, next_part) + length (next_part) + 1
-            ),
-            '/'
-          ) - 1
-        )
-      )
-    FROM
-      fs,
-      nodes
-    WHERE
-      instr (path, '/') != 0
-      AND nodes.parentId = fs.id
-      AND next_part = nodes.name
-      AND nodes.userid = __userid
-  )
-SELECT
-  *
-FROM
-  nodes
-WHERE
-  (
-    nodes.id = (
-      SELECT
-        id
-      FROM
-        fs
-      ORDER BY
-        n DESC
-      LIMIT
-        1
-    ) __includeChildren
-  )
-  AND nodes.userid = __userid`;
+	const query = `
+	WITH RECURSIVE
+	  CTE AS (
+	    SELECT
+	      id,
+	      name AS parent_path
+	    FROM
+	      nodes
+	    WHERE
+	      parentId IS NULL
+	      AND userId = __userid
+	    UNION ALL
+	    SELECT
+	      n.id,
+	      parent_path || '/' || n.name
+	    FROM
+	      nodes n
+	      JOIN CTE ON n.parentId = CTE.id
+	  ) __includeChildren
+	`;
 
-	path = path.substring(1);
-	const firstPart = path.slice(0, path.indexOf('/') === -1 ? path.length : path.indexOf('/'));
-	const lastPart = path.slice(path.lastIndexOf('/') + 1);
+	path = path === '/' ? 'root' : 'root' + path;
 
-	const x = query
-		.replace(/__path/g, `'/${path}'`)
-		.replace(/__firstpart/g, `'${firstPart}'`)
-		.replace(/__lastpart/g, `'${lastPart}'`)
+	return query
+		.replace(/__path/g, `'${path}'`)
 		.replace(/__userid/g, `${userId}`)
 		.replace(
 			/__includeChildren/g,
 			includeChildren
-				? `OR nodes.parentId = (
-  SELECT
-    id
-  FROM
-    fs
-  ORDER BY
-    n DESC
-  LIMIT
-    1
-)`
-				: ''
+				? `
+				SELECT
+				  *
+				FROM
+				  nodes
+				WHERE
+				  id = (
+				    SELECT
+				      id
+				    FROM
+				      CTE
+				    WHERE
+				      parent_path = __path
+				  )
+				  OR parentId = (
+				    SELECT
+				      id
+				    FROM
+				      CTE
+				    WHERE
+				      parent_path = __path
+				  )`.replace(/__path/g, `'${path}'`)
+				: `
+				SELECT
+				  *
+				FROM
+				  nodes
+				WHERE
+				  id = (
+				    SELECT
+				      id
+				    FROM
+				      CTE
+				    WHERE
+				      parent_path = __path
+				  )`.replace(/__path/g, `'${path}'`)
 		);
-	console.log(x);
-	return x;
 };
 
 export { GET_NODES_BY_PATH_QUERY };
