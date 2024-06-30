@@ -64,11 +64,25 @@
 
 <div class="flex flex-col gap-4 py-4">
 	<PathCrumbs path={pwd} />
-	{#if data.mode === 'offline' && isServer}
-		<div class="col-span-full grid place-content-center p-8">
-			<div class="i-mdi:loading animate-spin text-7xl"></div>
-		</div>
-	{:else if isEmpty}
+	<ul
+		class="grid content-start items-start gap-2 border-b-2 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+	>
+		{#if pwd === '/'}
+			{#each RESERVED_FILE_NAMES as filename}
+				<li class="grid">
+					<Button
+						variant="secondary"
+						class="flex items-center justify-start gap-2"
+						on:click={() => goto(RESERVED_FILE_DATA_MAP[filename].url)}
+					>
+						<span class={RESERVED_FILE_DATA_MAP[filename].icon}></span>
+						<span class="truncate">{filename}</span>
+					</Button>
+				</li>
+			{/each}
+		{/if}
+	</ul>
+	{#if isEmpty}
 		{#if pwd === '/'}
 			<div
 				class="col-span-full grid h-full place-content-center place-items-center gap-4 text-3xl font-bold uppercase tracking-wide"
@@ -83,24 +97,6 @@
 			</div>
 		{/if}
 	{:else}
-		<ul
-			class="grid content-start items-start gap-2 border-b-2 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-		>
-			{#if pwd === '/'}
-				{#each RESERVED_FILE_NAMES as filename}
-					<li class="grid">
-						<Button
-							variant="secondary"
-							class="flex items-center justify-start gap-2"
-							on:click={() => goto(RESERVED_FILE_DATA_MAP[filename].url)}
-						>
-							<span class={RESERVED_FILE_DATA_MAP[filename].icon}></span>
-							<span class="truncate">{filename}</span>
-						</Button>
-					</li>
-				{/each}
-			{/if}
-		</ul>
 		<ul
 			class="grid h-full content-start items-start gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 		>
