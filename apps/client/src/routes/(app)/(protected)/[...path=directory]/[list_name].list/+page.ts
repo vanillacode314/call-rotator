@@ -1,4 +1,3 @@
-import { isServer } from '$/consts/sveltekit';
 import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 import * as path from '$/utils/path';
 import { error } from '@sveltejs/kit';
@@ -13,14 +12,10 @@ export const load = (async (event) => {
 
 	let list: TList | null = null;
 	let contacts: TContact[] = [];
-	if (isServer) {
-		return { pwd };
-	} else {
-		const db = await getSQLocalClient();
-		const result = await getListByPath(db, user!.id, pwd);
-		if (result === null) error(404, 'Invalid Path');
-		({ list, contacts } = result);
-	}
+	const db = await getSQLocalClient();
+	const result = await getListByPath(db, user!.id, pwd);
+	if (result === null) error(404, 'Invalid Path');
+	({ list, contacts } = result);
 
 	return { list, contacts, pwd };
 }) satisfies PageLoad;

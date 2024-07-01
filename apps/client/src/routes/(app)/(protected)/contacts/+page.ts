@@ -1,4 +1,4 @@
-import { isServer } from '$/consts/sveltekit';
+import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 import { getContacts } from 'db/queries/v1/contacts/index';
 import type { PageLoad } from './$types';
@@ -12,11 +12,8 @@ export const load = (async (event) => {
 
 	let contacts: TContact[] = [];
 	let total: number = 0;
-	if (isServer) {
-	} else {
-		const db = await getSQLocalClient();
-		({ total, contacts } = await getContacts(db, user!.id, { page, itemsPerPage }));
-	}
+	const db = await getSQLocalClient();
+	({ total, contacts } = await getContacts(db, DEFAULT_LOCAL_USER_ID, { page, itemsPerPage }));
 
 	return { contacts, total };
 }) satisfies PageLoad;

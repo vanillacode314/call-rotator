@@ -12,6 +12,7 @@
 	import { page } from '$app/stores';
 	import { deleteContact } from 'db/queries/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { toast } from 'svelte-sonner';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
@@ -35,7 +36,16 @@
 		</Button>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Item on:click={() => navigator.clipboard.writeText(contact.phone)}>
+		<DropdownMenu.Item
+			on:click={() => {
+				try {
+					navigator.clipboard.writeText(contact.phone);
+					toast.success('Copied phone to clipboard');
+				} catch {
+					toast.error('Failed to copy phone');
+				}
+			}}
+		>
 			Copy phone
 		</DropdownMenu.Item>
 		<DropdownMenu.Item on:click={() => showTextModal(contact.notes)}>See Notes</DropdownMenu.Item>

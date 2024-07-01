@@ -10,7 +10,7 @@
 	import { Input } from '$/components/ui/input';
 	import * as Select from '$/components/ui/select';
 	import { parseFormData } from '$/utils';
-	import { VALID_FILETYPES } from '$/consts';
+	import { DEFAULT_LOCAL_USER_ID, VALID_FILETYPES } from '$/consts';
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import { createFetcher } from '$/utils/zod';
@@ -35,7 +35,7 @@
 			};
 			formData.set('node', JSON.stringify(node));
 			const db = await getSQLocalClient();
-			await postNode(db, $page.data.user.id, { node });
+			await postNode(db, DEFAULT_LOCAL_USER_ID, { node });
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$createFileModalOpen = false;

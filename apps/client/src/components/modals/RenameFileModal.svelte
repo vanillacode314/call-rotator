@@ -22,6 +22,7 @@
 	import { useClipboard } from '$/stores/clipboard';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { putNode } from 'db/queries/v1/nodes/by-id/index';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 
 	const clipboard = useClipboard();
 
@@ -34,7 +35,7 @@
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
 			const filetype = node.name.split('.').pop()!;
 			const db = await getSQLocalClient();
-			await putNode(db, $page.data.user.id, node.id, { node: { name: `${name}.${filetype}` } });
+			await putNode(db, DEFAULT_LOCAL_USER_ID, node.id, { node: { name: `${name}.${filetype}` } });
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$renameFileModalOpen = false;

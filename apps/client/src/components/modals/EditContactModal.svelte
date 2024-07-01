@@ -14,6 +14,7 @@
 	import { PutContactsRequestV1Schema } from 'schema/routes/api/v1/contacts/index';
 	import { putContact } from 'db/queries/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 
 	const clipboard = useClipboard();
 
@@ -25,7 +26,7 @@
 				PutContactsRequestV1Schema.shape.contact
 			);
 			const db = await getSQLocalClient();
-			await putContact(db, $page.data.user.id, contact.id, { contact: data });
+			await putContact(db, DEFAULT_LOCAL_USER_ID, contact.id, { contact: data });
 			await invalidate(`contacts:contacts`);
 		} finally {
 			$editContactModalOpen = false;

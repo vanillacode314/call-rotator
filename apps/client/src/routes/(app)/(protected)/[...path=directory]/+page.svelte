@@ -10,11 +10,11 @@
 	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import { toast } from 'svelte-sonner';
 	import { createFetcher } from '$/utils/zod';
-	import { toastErrors } from '$/utils';
 	import { useTaskQueue, queueTask } from '$/stores/task-queue';
-	import { isServer } from '$/consts/sveltekit';
-	import { putNode } from '$/routes/api/v1/(protected)/nodes/by-id/local';
-	import { RESERVED_FILE_DATA_MAP, RESERVED_FILE_NAMES } from '$/consts';
+	import { putNode } from 'db/queries/v1/nodes/by-id/index';
+	import { DEFAULT_LOCAL_USER_ID, RESERVED_FILE_DATA_MAP, RESERVED_FILE_NAMES } from '$/consts';
+	import { page } from '$app/stores';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
@@ -27,8 +27,6 @@
 		files: TNode[] = [];
 	$: children !== null && updateNodes(children);
 	$: isEmpty = children !== null && folders.length + files.length === 0;
-
-	const fetcher = createFetcher(fetch);
 
 	async function updateNodes(children: TNode[]) {
 		folders.length = 0;
@@ -76,7 +74,7 @@
 						on:click={() => goto(RESERVED_FILE_DATA_MAP[filename].url)}
 					>
 						<span class={RESERVED_FILE_DATA_MAP[filename].icon}></span>
-						<span class="truncate">{filename}</span>
+						<span class="truncate">{RESERVED_FILE_DATA_MAP[filename].label}</span>
 					</Button>
 				</li>
 			{/each}
@@ -134,7 +132,8 @@
 								return;
 							}
 							queueTask(queue, 'Moving', async () => {
-								await putNode({ node: { id: folder.id, parentId: id } });
+								const db = await getSQLocalClient();
+								await putNode(db, DEFAULT_LOCAL_USER_ID, id, { node: { parentId: folder.id } });
 								await invalidate(`pwd:${pwd}`);
 							});
 						}}

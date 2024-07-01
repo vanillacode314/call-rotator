@@ -13,6 +13,7 @@
 	import { postContact } from 'db/queries/v1/contacts/index';
 	import { PostContactsRequestV1Schema } from 'schema/routes/api/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -22,7 +23,7 @@
 				PostContactsRequestV1Schema.shape.contact
 			);
 			const db = await getSQLocalClient();
-			await postContact(db, $page.data.user.id, { contact: data });
+			await postContact(db, DEFAULT_LOCAL_USER_ID, { contact: data });
 			await invalidate(`contacts:contacts`);
 		} finally {
 			$newContactModalOpen = false;

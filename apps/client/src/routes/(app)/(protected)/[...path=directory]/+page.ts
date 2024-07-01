@@ -1,4 +1,4 @@
-import { isServer } from '$/consts/sveltekit';
+import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 import * as path from '$/utils/path';
 import { error } from '@sveltejs/kit';
@@ -12,7 +12,7 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 	let children: TNode[] | null = null;
 	let node: TNode | null = null;
 	const db = await getSQLocalClient();
-	const data = isServer ? null : await getNodeByPath(db, user!.id, pwd, { includeChildren: true });
+	const data = await getNodeByPath(db, DEFAULT_LOCAL_USER_ID, pwd, { includeChildren: true });
 	if (data !== null) {
 		node = data.node;
 		children = data.children;
@@ -27,6 +27,6 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 		});
 	}
 
-	if (children === null && !isServer) error(404, 'Invalid Path');
+	if (children === null) error(404, 'Invalid Path');
 	return { children, pwd, node };
 }) satisfies PageLoad;

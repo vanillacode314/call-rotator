@@ -30,8 +30,6 @@
 		const { token } = response.result;
 		const user = jwtDecode(token) as TUser;
 		token && localStorage.setItem('jwtToken', token);
-		const db = await getSQLocalClient();
-		await seed(db, user.id);
 		window.location.reload();
 	}
 

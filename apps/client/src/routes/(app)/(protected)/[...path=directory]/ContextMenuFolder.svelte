@@ -14,6 +14,7 @@
 	import { useClipboard } from '$/stores/clipboard';
 	import { deleteNode } from 'db/queries/v1/nodes/by-id/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
@@ -35,7 +36,7 @@
 					async onYes() {
 						queueTask(queue, 'Deleting', async () => {
 							const db = await getSQLocalClient();
-							await deleteNode(db, $page.data.user.id, folder.id);
+							await deleteNode(db, DEFAULT_LOCAL_USER_ID, folder.id);
 							await invalidate(`pwd:${pwd}`);
 						});
 					}

@@ -14,6 +14,7 @@ async function getSQLocalClient() {
 	firstRun = false;
 	await runMigrations(module.db);
 	await seed(module.db);
+	console.log(await module.db.select().from(nodes));
 	return module.db;
 }
 

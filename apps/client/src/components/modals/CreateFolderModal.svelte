@@ -22,7 +22,7 @@
 	import { createFetcher } from '$/utils/zod';
 	import { postNode } from 'db/queries/v1/nodes/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
-	import { RESERVED_FILE_NAMES } from '$/consts';
+	import { DEFAULT_LOCAL_USER_ID, RESERVED_FILE_NAMES } from '$/consts';
 	import { toast } from 'svelte-sonner';
 
 	$: pwd = decodeURI($page.url.pathname);
@@ -41,7 +41,7 @@
 			}
 			formData.set('node', JSON.stringify({ name, parent_id: $page.data.node.id, metadata: null }));
 			const db = await getSQLocalClient();
-			await postNode(db, $page.data.user.id, {
+			await postNode(db, DEFAULT_LOCAL_USER_ID, {
 				node: { name: name, parentId: $page.data.node.id, listId: null }
 			});
 			await invalidate(`pwd:${pwd}`);

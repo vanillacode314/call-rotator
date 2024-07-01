@@ -9,6 +9,11 @@
 	interface $$Props {
 		class?: string;
 	}
+
+	async function signout() {
+		localStorage.removeItem('jwtToken');
+		window.location.reload();
+	}
 </script>
 
 <div class={cn('border-offset-background flex flex-col gap-8 border-r', $$props.class)}>
@@ -36,4 +41,15 @@
 			</li>
 		{/each}
 	</ul>
+	<div class="border-offset-background flex flex-col gap-2">
+		<Button
+			class="flex items-center justify-end gap-2 self-end text-xs font-bold uppercase tracking-wider"
+			on:click={signout}
+			variant="ghost"
+			type="button"
+		>
+			<span>Sign Out</span>
+			<span class="i-carbon:logout shrink-0 text-base"></span>
+		</Button>
+	</div>
 </div>
