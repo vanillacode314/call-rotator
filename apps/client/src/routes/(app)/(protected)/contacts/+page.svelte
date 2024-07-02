@@ -10,13 +10,16 @@
 	import { createFetcher } from '$/utils/zod';
 	import { useTaskQueue } from '$/stores/task-queue';
 	import { newContactModalOpen } from '$/components/modals/CreateContactModal.svelte';
+	import ChevronLeft from 'lucide-svelte/icons/chevron-left';
+	import ChevronRight from 'lucide-svelte/icons/chevron-right';
+	import * as Pagination from '$/components/ui/pagination/index.js';
+	import { goto } from '$app/navigation';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
 
 	export let data;
-	$: ({ contacts, total } = data);
-	const fetcher = createFetcher(fetch);
+	$: ({ contacts, total, itemsPerPage, page } = data);
 
 	function createContact() {
 		$newContactModalOpen = true;
@@ -59,7 +62,7 @@
 	<title>{path.compressPath('/contacts')}</title>
 </svelte:head>
 
-<div class="flex flex-col gap-4 py-4">
+<div class="flex flex-col gap-4 overflow-y-auto py-4">
 	<PathCrumbs path="/contacts" />
 	{#if data.contacts?.length ?? 0 > 0}
 		<div class="w-full self-start rounded-md border">
@@ -122,6 +125,45 @@
 				</Table.Body>
 			</Table.Root>
 		</div>
+		<Pagination.Root
+			count={total}
+			perPage={itemsPerPage}
+			let:pages
+			let:currentPage
+			onPageChange={(value) => {
+				const url = new URL(window.location.href);
+				url.searchParams.set('page', String(value));
+				goto(url);
+			}}
+		>
+			<Pagination.Content>
+				<Pagination.Item>
+					<Pagination.PrevButton>
+						<ChevronLeft class="h-4 w-4" />
+						<span class="hidden sm:block">Previous</span>
+					</Pagination.PrevButton>
+				</Pagination.Item>
+				{#each pages as page (page.key)}
+					{#if page.type === 'ellipsis'}
+						<Pagination.Item>
+							<Pagination.Ellipsis />
+						</Pagination.Item>
+					{:else}
+						<Pagination.Item>
+							<Pagination.Link {page} isActive={currentPage === page.value}>
+								{page.value}
+							</Pagination.Link>
+						</Pagination.Item>
+					{/if}
+				{/each}
+				<Pagination.Item>
+					<Pagination.NextButton>
+						<span class="hidden sm:block">Next</span>
+						<ChevronRight class="h-4 w-4" />
+					</Pagination.NextButton>
+				</Pagination.Item>
+			</Pagination.Content>
+		</Pagination.Root>
 	{:else}
 		<div
 			class="col-span-full grid h-full place-content-center place-items-center gap-4 text-3xl font-bold uppercase tracking-wide"

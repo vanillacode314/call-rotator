@@ -15,5 +15,5 @@ export const load = (async (event) => {
 	const db = await getSQLocalClient();
 	({ total, contacts } = await getContacts(db, DEFAULT_LOCAL_USER_ID, { page, itemsPerPage }));
 
-	return { contacts, total };
+	return { contacts, total, itemsPerPage, page };
 }) satisfies PageLoad;

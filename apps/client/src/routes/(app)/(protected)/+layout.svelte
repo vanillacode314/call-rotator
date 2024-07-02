@@ -23,11 +23,11 @@
 <div class="content-grid h-full grid-rows-[auto_1fr]">
 	<Nav />
 	<Fab class="fixed bottom-0 right-0 m-4 p-4 md:hidden" />
-	<main class="full-width">
+	<main class="full-width overflow-hidden">
 		{#if $page.error}
 			<slot />
 		{:else}
-			<div class="grid h-full gap-4 bg-background p-0 md:grid-cols-[230px_1fr]">
+			<div class="grid h-full gap-4 overflow-y-hidden bg-background p-0 md:grid-cols-[230px_1fr]">
 				<div class="hidden md:contents">
 					<Sidebar class="p-4" />
 				</div>
