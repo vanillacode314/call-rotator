@@ -21,22 +21,22 @@ function initTaskQueueContext() {
 	return setContext<TTaskQueueContext>('task-queue-context', { items });
 }
 
-async function queueTask<T>(
+function queueTask<T>(
 	queue: TTaskQueueContext,
 	title: string,
-	promise: () => Promise<T>
+	makePromise: () => Promise<T>
 ): Promise<T> {
-	const _promise = promise().finally(() =>
-		queue.items.update((items) => items.filter((i) => i.promise !== _promise))
+	const promise = makePromise().finally(() =>
+		queue.items.update((items) => items.filter((i) => i.promise !== promise))
 	);
 	queue.items.update((items) => {
 		items.push({
 			title,
-			promise: _promise
+			promise: promise
 		});
 		return items;
 	});
-	return await promise();
+	return promise;
 }
 
 export { initTaskQueueContext, queueTask, useTaskQueue };

@@ -6,7 +6,7 @@ import {
 	PutContactsRequestV1Schema
 } from 'schema/routes/api/v1/contacts/index';
 import type { z } from 'zod';
-import { contacts } from '~db/schema';
+import { contacts, listContactAssociation } from '~db/schema';
 import { Database } from '~db/types';
 
 async function getContacts(
@@ -41,7 +41,10 @@ async function postContact(
 }
 
 async function deleteContact(db: Database, userId: TUser['id'], id: TContact['id']) {
-	await db.delete(contacts).where(and(eq(contacts.id, id)));
+	await db.transaction(async (tx) => {
+		await tx.delete(listContactAssociation).where(eq(listContactAssociation.contactId, id));
+		await tx.delete(contacts).where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
+	});
 	return {};
 }
 

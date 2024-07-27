@@ -13,6 +13,7 @@
 	import { deleteContact } from 'db/queries/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { toast } from 'svelte-sonner';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
@@ -22,7 +23,7 @@
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
 			const db = await getSQLocalClient();
-			await deleteContact(db, $page.data.user.id, contact.id);
+			await deleteContact(db, DEFAULT_LOCAL_USER_ID, contact.id);
 			await invalidate(`contacts:contacts`);
 		});
 	}

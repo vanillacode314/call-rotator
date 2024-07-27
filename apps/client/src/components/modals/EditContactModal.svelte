@@ -10,7 +10,6 @@
 	import { invalidate } from '$app/navigation';
 	import { useClipboard } from '$/stores/clipboard';
 	import ContactForm from './ContactForm.svelte';
-	import { page } from '$app/stores';
 	import { PutContactsRequestV1Schema } from 'schema/routes/api/v1/contacts/index';
 	import { putContact } from 'db/queries/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
@@ -27,7 +26,7 @@
 			);
 			const db = await getSQLocalClient();
 			await putContact(db, DEFAULT_LOCAL_USER_ID, contact.id, { contact: data });
-			await invalidate(`contacts:contacts`);
+			await invalidate(`contact:${contact.id}`);
 		} finally {
 			$editContactModalOpen = false;
 		}

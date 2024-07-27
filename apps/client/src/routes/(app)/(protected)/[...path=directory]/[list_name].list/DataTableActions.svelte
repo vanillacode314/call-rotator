@@ -5,25 +5,30 @@
 	import { useClipboard } from '$/stores/clipboard';
 	import { editContactModalOpen } from '$/components/modals/EditContactModal.svelte';
 	import { alert } from '$/components/modals/AlertModal.svelte';
-	import { invalidate } from '$app/navigation';
-	import { filterInPlace, toastErrors } from '$/utils';
 	import { showTextModal } from '$/components/modals/TextModal.svelte';
 	import { createFetcher } from '$/utils/zod';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
-	import {
-		getOutputSchema,
-		putOutputSchema as nodesPutOutputSchema
-	} from '$/routes/api/v1/(protected)/nodes/by-id/schema';
+	import { toast } from 'svelte-sonner';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { deleteListContactById } from 'db/queries/v1/lists/by-id/contacts/by-id/index';
 	import { page } from '$app/stores';
+	import { invalidate } from '$app/navigation';
+	import type { TList, TContact } from 'schema/db';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
 	const fetcher = createFetcher(fetch);
 
-	export let contact: TContact & { nodeId: TNode['id'] };
-	export let node: TNode;
+	export let contact: TContact;
+	export let list: TList;
 
-	function removeContactFromList() {}
+	function removeContactFromList() {
+		queueTask(queue, 'Removing', async () => {
+			const db = await getSQLocalClient();
+			await deleteListContactById(db, list.id, [contact.id]);
+			await invalidate(`list:${$page.data.pwd}`);
+		});
+	}
 </script>
 
 <DropdownMenu.Root>
@@ -34,7 +39,17 @@
 		</Button>
 	</DropdownMenu.Trigger>
 	<DropdownMenu.Content align="end">
-		<DropdownMenu.Item on:click={() => navigator.clipboard.writeText(contact.phone)}>
+		<DropdownMenu.Item
+			on:click={async () => {
+				try {
+					await navigator.clipboard.writeText(contact.phone);
+					toast.success('Copied phone to clipboard');
+				} catch (e) {
+					console.error(e);
+					toast.error('Failed to copy phone');
+				}
+			}}
+		>
 			Copy phone
 		</DropdownMenu.Item>
 		<DropdownMenu.Item on:click={() => showTextModal(contact.notes)}>See Notes</DropdownMenu.Item>
@@ -49,13 +64,7 @@
 		>
 		<DropdownMenu.Item
 			on:click={async () => {
-				const result = await fetcher(getOutputSchema, `/api/v1/nodes/by-id?id=${contact.nodeId}`);
-				if (!result.success) {
-					toastErrors(result.errors);
-					return;
-				}
 				$clipboard.contacts = [contact];
-				$clipboard.nodes = [result.data.node];
 				$editContactModalOpen = true;
 			}}>Edit</DropdownMenu.Item
 		>

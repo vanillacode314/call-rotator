@@ -3,14 +3,10 @@
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
 	import { useActions } from '$/stores/actions';
-	import { parseMetadata } from '$/utils/types';
 	import { Button } from '$/components/ui/button';
-	// import PathCrumbs from '$/components/PathCrumbs.svelte';
+	import PathCrumbs from '$/components/PathCrumbs.svelte';
 	import * as Card from '$/components/ui/card';
 	import { formatDate, safeParseFormData, toastErrors } from '$/utils';
-	import { z } from 'zod';
-	import { toast } from 'svelte-sonner';
-	import { openFilePicker } from '$/components/modals/FilePickerModal.svelte';
 	import { openContactPicker } from '$/components/modals/ContactPickerModal.svelte';
 	import { invalidate } from '$app/navigation';
 	import DataTableActions from './DataTableActions.svelte';
@@ -19,11 +15,14 @@
 	import { readable } from '@square/svelte-store';
 	import DatePicker from '$/components/DatePicker.svelte';
 	import { parseDate } from '@internationalized/date';
-	import { uniq } from '$/utils/array';
-	import { createFetcher } from '$/utils/zod';
-	import { putOutputSchema as nodesPutOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-id/schema';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 	import { listSchema } from 'schema/db';
+	import { postListContactById } from 'db/queries/v1/lists/by-id/contacts/index';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import { putList } from 'db/queries/v1/lists/by-id/index';
+	import { toast } from 'svelte-sonner';
+	import { z } from 'zod';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
@@ -32,8 +31,14 @@
 	$: ({ pwd, list, contacts } = data);
 
 	async function importContact() {
-		const newContacts = await openContactPicker(list!, contacts);
-		console.log({ contacts });
+		const newContacts = await openContactPicker();
+		queueTask(queue, 'Importing Contacts', async () => {
+			const db = await getSQLocalClient();
+			await postListContactById(db, DEFAULT_LOCAL_USER_ID, list.id, {
+				contactIds: newContacts.map((contact) => contact.id)
+			});
+			await invalidate(`list:${pwd}`);
+		});
 	}
 
 	$actions = [
@@ -44,8 +49,22 @@
 		}
 	];
 
-	const formSchema = listSchema.pick({ startDate: true, cycleDurationDays: true });
-	async function onSave(event: SubmitEvent) {}
+	const formSchema = listSchema.pick({ startDate: true, cycleDurationDays: true }).extend({
+		cycleDurationDays: z.coerce.number(),
+		startDate: z.coerce.date()
+	});
+	async function onSave(event: SubmitEvent) {
+		const form = event.target as HTMLFormElement;
+		const result = safeParseFormData(form, formSchema);
+		if (!result.success) {
+			result.error.errors.forEach((err) => toast.error(err.message));
+			return;
+		}
+		const db = await getSQLocalClient();
+		await putList(db, DEFAULT_LOCAL_USER_ID, list.id, { list: Object.assign(list, result.data) });
+		toast.success('List updated');
+		await invalidate(`list:${pwd}`);
+	}
 
 	function validateCycleDurationDays(event: Event) {
 		const inp = event.target as HTMLInputElement;
@@ -94,7 +113,7 @@
 			accessor: (contact) => contact,
 			header: '',
 			cell: ({ value }) => {
-				return 'hi'; // createRender(DataTableActions, { contact: value, node: node! });
+				return createRender(DataTableActions, { contact: value, list });
 			}
 		})
 	]);
@@ -106,7 +125,7 @@
 </svelte:head>
 
 <div class="flex flex-col gap-4 py-4">
-	<!-- <PathCrumbs path={pwd} /> -->
+	<PathCrumbs path={pwd} />
 	{#if list}
 		{#if data.contacts?.length ?? 0 > 0}
 			<form class="contents" on:submit={onSave}>
