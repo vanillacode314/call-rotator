@@ -4,6 +4,7 @@ export default defineNitroConfig({
 	srcDir: 'server',
 	logLevel: 1,
 	errorHandler: '~/error.ts',
+	preset: 'netlify',
 	esbuild: {
 		options: {
 			target: 'esnext'
