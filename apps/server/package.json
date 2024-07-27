@@ -1,26 +1,25 @@
 {
-	"name": "server",
-	"private": true,
-	"scripts": {
-		"build": "nitro build",
-		"dev": "nitro dev",
-		"prepare": "nitro prepare",
-		"preview": "node .output/server/index.mjs",
-		"format": "prettier --write ."
-	},
-	"devDependencies": {
-		"nitropack": "^2.9.6",
-		"prettier": "^3.2.5"
-	},
-	"packageManager": "pnpm@8.15.5+sha256.4b4efa12490e5055d59b9b9fc9438b7d581a6b7af3b5675eb5c5f447cee1a589",
-	"dependencies": {
-		"schema": "workspace:*",
-		"db": "workspace:*",
-		"@t3-oss/env-core": "^0.10.1",
-		"bcrypt": "^5.1.1",
-		"dotenv": "^16.4.5",
-		"drizzle-orm": "^0.30.10",
-		"jsonwebtoken": "^9.0.2",
-		"zod": "^3.23.8"
-	}
+  "name": "server",
+  "private": true,
+  "scripts": {
+    "build": "nitro build",
+    "dev": "nitro dev",
+    "prepare": "nitro prepare",
+    "preview": "node .output/server/index.mjs",
+    "format": "prettier --write ."
+  },
+  "devDependencies": {
+    "nitropack": "^2.9.6",
+    "prettier": "^3.2.5"
+  },
+  "dependencies": {
+    "schema": "workspace:*",
+    "db": "workspace:*",
+    "@t3-oss/env-core": "^0.10.1",
+    "bcrypt": "^5.1.1",
+    "dotenv": "^16.4.5",
+    "drizzle-orm": "^0.30.10",
+    "jsonwebtoken": "^9.0.2",
+    "zod": "^3.23.8"
+  }
 }
