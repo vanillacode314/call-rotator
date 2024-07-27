@@ -62,10 +62,10 @@
 
 <div class="flex flex-col gap-4 py-4">
 	<PathCrumbs path={pwd} />
-		{#if pwd === '/'}
-	<ul
-		class="grid content-start items-start gap-2 border-b-2 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
-	>
+	{#if pwd === '/'}
+		<ul
+			class="grid content-start items-start gap-2 border-b-2 pb-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
+		>
 			{#each RESERVED_FILE_NAMES as filename}
 				<li class="grid">
 					<Button
@@ -78,8 +78,8 @@
 					</Button>
 				</li>
 			{/each}
-	</ul>
-		{/if}
+		</ul>
+	{/if}
 	{#if isEmpty}
 		{#if pwd === '/'}
 			<div

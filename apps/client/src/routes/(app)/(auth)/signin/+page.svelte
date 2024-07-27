@@ -21,8 +21,7 @@
 				},
 				body: JSON.stringify(Object.fromEntries(formData)),
 				redirect: 'manual'
-			})
-				.then((res) => res.json())
+			}).then((res) => res.json())
 		);
 		if (!response.success) {
 			toastErrors(response.result.issues);

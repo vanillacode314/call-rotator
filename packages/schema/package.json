@@ -1,29 +1,29 @@
 {
-  "name": "schema",
-  "version": "1.0.0",
-  "exports": {
-    "./*": {
-      "types": "./dist/*.d.ts",
-      "import": "./dist/*.mjs"
-    }
-  },
-  "scripts": {
-    "build": "tsup",
-    "dev": "tsup --watch src",
-    "format": "prettier --write ."
-  },
-  "keywords": [],
-  "author": "",
-  "license": "ISC",
-  "description": "",
-  "dependencies": {
-    "zod": "^3.23.8"
-  },
-  "devDependencies": {
-    "@microsoft/api-extractor": "^7.43.7",
-    "prettier": "^3.2.5",
-    "prettier-plugin-organize-imports": "^3.2.4",
-    "tsup": "^8.0.2",
-    "typescript": "^5.4.5"
-  }
+	"name": "schema",
+	"version": "1.0.0",
+	"exports": {
+		"./*": {
+			"types": "./dist/*.d.ts",
+			"import": "./dist/*.mjs"
+		}
+	},
+	"scripts": {
+		"build": "tsup",
+		"dev": "tsup --watch src",
+		"format": "prettier --write ."
+	},
+	"keywords": [],
+	"author": "",
+	"license": "ISC",
+	"description": "",
+	"dependencies": {
+		"zod": "^3.23.8"
+	},
+	"devDependencies": {
+		"@microsoft/api-extractor": "^7.43.7",
+		"prettier": "^3.2.5",
+		"prettier-plugin-organize-imports": "^3.2.4",
+		"tsup": "^8.0.2",
+		"typescript": "^5.4.5"
+	}
 }
