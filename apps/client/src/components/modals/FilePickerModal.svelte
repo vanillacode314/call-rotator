@@ -25,8 +25,6 @@
 	import PathCrumbs from '../PathCrumbs.svelte';
 	import { tick } from 'svelte';
 	import { page } from '$app/stores';
-	import { getOutputSchema as nodesGetOutputSchema } from '$/routes/api/v1/(protected)/nodes/by-path/schema';
-	import { toastErrors } from '$/utils';
 	import { createFetcher } from '$/utils/zod';
 	import { getNodeByPath } from 'db/queries/v1/nodes/by-path/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
