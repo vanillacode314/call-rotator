@@ -1,6 +1,0 @@
-syntax = "proto3";
-
-message ListContact {
-  int64 listId = 2;
-  int64 contactId = 3;
-}

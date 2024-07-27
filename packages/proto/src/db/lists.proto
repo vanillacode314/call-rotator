@@ -1,9 +1,0 @@
-syntax = "proto3";
-
-message List {
-  int64 id = 1;
-  int64 cycleDurationDays = 2;
-  int64 startDate = 3;
-  int64 userId = 4;
-  repeated int64 contactIds = 5;
-}
