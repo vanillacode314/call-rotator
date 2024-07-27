@@ -8,9 +8,7 @@ import { SignInRequestV1Schema } from 'schema/routes/api/v1/signin';
 import { db } from '~/utils/db';
 
 export default defineEventHandler(async (event) => {
-	console.log(100);
 	const result = await readValidatedBody(event, SignInRequestV1Schema.safeParse);
-	console.log(200, result);
 	if (!result.success) {
 		setResponseStatus(event, 400);
 		return {
@@ -25,10 +23,8 @@ export default defineEventHandler(async (event) => {
 		};
 	}
 	const { email, password } = result.data;
-	console.log(300, { email, password });
 
 	const [row] = await db.select({ count: count() }).from(users).where(eq(users.email, email));
-	console.log(400, row);
 	if (row.count !== 1) {
 		setResponseStatus(event, 401);
 		return {
