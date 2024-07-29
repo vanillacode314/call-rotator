@@ -17,17 +17,17 @@
 	"license": "ISC",
 	"description": "",
 	"dependencies": {
-		"drizzle-orm": "^0.30.9",
+		"drizzle-orm": "^0.32.1",
 		"schema": "workspace:*",
-		"zod": "^3.23.4"
+		"zod": "^3.23.8"
 	},
 	"devDependencies": {
-		"@microsoft/api-extractor": "^7.43.7",
-		"drizzle-kit": "^0.20.17",
-		"esbuild": "^0.21.3",
-		"prettier": "^3.2.5",
-		"prettier-plugin-organize-imports": "^3.2.4",
-		"tsup": "^8.0.2",
-		"typescript": "5.4.5"
+		"@microsoft/api-extractor": "^7.47.4",
+		"drizzle-kit": "^0.23.0",
+		"esbuild": "^0.23.0",
+		"prettier": "^3.3.3",
+		"prettier-plugin-organize-imports": "^4.0.0",
+		"tsup": "^8.2.3",
+		"typescript": "5.5.4"
 	}
 }
