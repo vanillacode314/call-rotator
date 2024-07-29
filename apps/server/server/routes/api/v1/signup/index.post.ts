@@ -56,7 +56,7 @@ export default defineEventHandler(async (event) => {
 		return user;
 	});
 
-	const token = jwt.sign(userSchema.omit({ email: true, id: true }).parse(user), env.AUTH_SECRET, {
+	const token = jwt.sign(userSchema.pick({ email: true, id: true }).parse(user), env.AUTH_SECRET, {
 		expiresIn: 365 * 24 * 60 * 60
 	});
 	return { success: true, status: 200, result: { token } };

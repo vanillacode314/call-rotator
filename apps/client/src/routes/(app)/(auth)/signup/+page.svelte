@@ -14,7 +14,7 @@
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
 		const response = SignUpResponseV1Schema.parse(
-			await fetch(PUBLIC_API_BASE_URL + '/api/v1/signin', {
+			await fetch(PUBLIC_API_BASE_URL + '/api/v1/signup', {
 				method: 'POST',
 				headers: {
 					'Content-Type': 'application/json'
