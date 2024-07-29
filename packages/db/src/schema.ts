@@ -12,7 +12,11 @@ const users = sqliteTable('users', {
 	id: int('id').primaryKey({ autoIncrement: true }),
 	email: text('email').notNull(),
 	password: text('password').notNull(),
-	emailVerified: int('emailVerified', { mode: 'timestamp_ms' })
+	emailVerified: int('emailVerified', { mode: 'timestamp_ms' }),
+	createdAt: int('createdAt', { mode: 'timestamp_ms' }).default(sql`(CURRENT_TIMESTAMP)`),
+	updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+		.default(sql`(CURRENT_TIMESTAMP)`)
+		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
 	// image: text('image')
 });
 
@@ -41,7 +45,11 @@ const nodes = sqliteTable(
 		}),
 		userId: int('userId')
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' })
+			.references(() => users.id, { onDelete: 'cascade' }),
+		createdAt: int('createdAt', { mode: 'timestamp_ms' }).default(sql`(CURRENT_TIMESTAMP)`),
+		updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+			.default(sql`(CURRENT_TIMESTAMP)`)
+			.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
 	},
 	(t) => ({
 		unq: unique().on(t.name, t.parentId, t.userId)
@@ -53,10 +61,14 @@ const lists = sqliteTable('lists', {
 	cycleDurationDays: int('cycleDurationDays').notNull().default(7),
 	startDate: int('startDate', { mode: 'timestamp_ms' })
 		.notNull()
-		.default(sql`(datetime ('now'))`),
+		.default(sql`(CURRENT_TIMESTAMP)`),
 	userId: int('userId')
 		.notNull()
-		.references(() => users.id, { onDelete: 'cascade' })
+		.references(() => users.id, { onDelete: 'cascade' }),
+	createdAt: int('createdAt', { mode: 'timestamp_ms' }).default(sql`(CURRENT_TIMESTAMP)`),
+	updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+		.default(sql`(CURRENT_TIMESTAMP)`)
+		.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
 });
 
 const contacts = sqliteTable(
@@ -72,7 +84,11 @@ const contacts = sqliteTable(
 			.default(sql`'[]'`),
 		userId: int('userId')
 			.notNull()
-			.references(() => users.id, { onDelete: 'cascade' })
+			.references(() => users.id, { onDelete: 'cascade' }),
+		createdAt: int('createdAt', { mode: 'timestamp_ms' }).default(sql`(CURRENT_TIMESTAMP)`),
+		updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+			.default(sql`(CURRENT_TIMESTAMP)`)
+			.$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
 	},
 	(t) => ({
 		unq: unique().on(t.phone, t.userId)
