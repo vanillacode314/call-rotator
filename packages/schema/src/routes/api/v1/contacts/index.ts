@@ -12,15 +12,17 @@ const GetContactsResponseV1Schema = z.discriminatedUnion('success', [
 		status: z.number(),
 		success: z.literal(true),
 		result: z.object({
-			contacts: contactSchema.array(),
+			contacts: contactSchema.omit({ createdAt: true, updatedAt: true }).array(),
 			total: z.number().int().nonnegative()
 		})
 	}),
 	ErrorResponseV1Schema
 ]);
 
-const PostContactsRequestV1Schema = z.object({
-	contact: contactSchema.omit({ id: true, userId: true }).required()
+const PostContactRequestV1Schema = z.object({
+	contact: contactSchema
+		.omit({ id: true, userId: true, createdAt: true, updatedAt: true })
+		.required()
 });
 
 const PostContactResponseV1Schema = z.discriminatedUnion('success', [
@@ -28,46 +30,15 @@ const PostContactResponseV1Schema = z.discriminatedUnion('success', [
 		status: z.number(),
 		success: z.literal(true),
 		result: z.object({
-			contact: contactSchema
-		})
-	}),
-	ErrorResponseV1Schema
-]);
-
-const PutContactsRequestV1Schema = z.object({
-	contact: contactSchema.omit({ id: true, userId: true }).partial()
-});
-
-const PutContactResponseV1Schema = z.discriminatedUnion('success', [
-	z.object({
-		status: z.number(),
-		success: z.literal(true),
-		result: z.object({
-			contact: contactSchema
-		})
-	}),
-	ErrorResponseV1Schema
-]);
-
-const DeleteContactRequestV1Schema = z.unknown();
-const DeleteContactResponseV1Schema = z.discriminatedUnion('success', [
-	z.object({
-		status: z.number(),
-		success: z.literal(true),
-		result: z.object({
-			contact: contactSchema
+			contact: contactSchema.omit({ createdAt: true, updatedAt: true })
 		})
 	}),
 	ErrorResponseV1Schema
 ]);
 
 export {
-	DeleteContactRequestV1Schema,
-	DeleteContactResponseV1Schema,
 	GetContactsRequestV1Schema,
 	GetContactsResponseV1Schema,
-	PostContactResponseV1Schema,
-	PostContactsRequestV1Schema,
-	PutContactResponseV1Schema,
-	PutContactsRequestV1Schema
+	PostContactRequestV1Schema,
+	PostContactResponseV1Schema
 };

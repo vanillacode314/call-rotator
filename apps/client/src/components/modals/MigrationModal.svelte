@@ -13,13 +13,12 @@
 <script lang="ts">
 	import { Button } from '$/components/ui/button';
 	import * as Dialog from '$/components/ui/dialog';
-	import { getRawSQLocalClient, getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { sql } from 'drizzle-orm';
 
 	async function onsubmit() {
-		const db = await getSQLocalClient();
-		const dbx = await getRawSQLocalClient();
-		const file = await dbx.getDatabaseFile();
+		const [rawDb, db] = await getSQLocalClient();
+		const file = await rawDb.getDatabaseFile();
 		const blob = new Blob([file], { type: 'application/octet-stream' });
 		const url = URL.createObjectURL(blob);
 		const a = document.createElement('a');

@@ -24,7 +24,7 @@
 
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
-			const db = await getSQLocalClient();
+			const [rawDb, db] = await getSQLocalClient();
 			await deleteListContactById(db, list.id, [contact.id]);
 			await invalidate(`list:${$page.data.pwd}`);
 		});

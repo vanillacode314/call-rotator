@@ -39,7 +39,7 @@
 	const fetcher = createFetcher(fetch);
 
 	async function updateNodes(pwd: string) {
-		const db = await getSQLocalClient();
+		const [rawDb, db] = await getSQLocalClient();
 		const result = await getNodeByPath(db, $page.data.user.id, pwd, {
 			includeChildren: true
 		});

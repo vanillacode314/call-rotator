@@ -2,12 +2,14 @@
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
 	import { Textarea } from '$/components/ui/textarea';
+	import type { TContact } from 'schema/db';
 
-	export let contact: Omit<TContact, 'id' | 'userId'> & Partial<Pick<TContact, 'id'>> = {
+	export let contact: Omit<TContact, 'id' | 'userId' | 'createdAt' | 'updatedAt'> &
+		Partial<Pick<TContact, 'id'>> = {
 		name: '',
 		phone: '',
 		notes: '',
-		tags: null
+		tags: []
 	};
 
 	function onInput(event: InputEvent) {

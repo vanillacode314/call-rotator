@@ -11,7 +11,7 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 	depends(`pwd:${pwd}`);
 	let children: TNode[] | null = null;
 	let node: TNode | null = null;
-	const db = await getSQLocalClient();
+	const [rawDb, db] = await getSQLocalClient();
 	const data = await getNodeByPath(db, DEFAULT_LOCAL_USER_ID, pwd, { includeChildren: true });
 	if (data !== null) {
 		node = data.node;

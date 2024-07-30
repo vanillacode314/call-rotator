@@ -132,7 +132,7 @@
 								return;
 							}
 							queueTask(queue, 'Moving', async () => {
-								const db = await getSQLocalClient();
+								const [rawDb, db] = await getSQLocalClient();
 								await putNode(db, DEFAULT_LOCAL_USER_ID, id, { node: { parentId: folder.id } });
 								await invalidate(`pwd:${pwd}`);
 							});

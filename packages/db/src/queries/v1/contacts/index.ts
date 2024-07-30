@@ -1,12 +1,11 @@
-import { and, count, eq } from 'drizzle-orm';
-import type { TContact, TUser } from 'schema/db';
+import { count, eq } from 'drizzle-orm';
+import type { TUser } from 'schema/db';
 import {
 	GetContactsRequestV1Schema,
-	PostContactsRequestV1Schema,
-	PutContactsRequestV1Schema
+	PostContactRequestV1Schema
 } from 'schema/routes/api/v1/contacts/index';
 import type { z } from 'zod';
-import { contacts, listContactAssociation } from '~db/schema';
+import { contacts } from '~db/schema';
 import { Database } from '~db/types';
 
 async function getContacts(
@@ -30,7 +29,7 @@ async function getContacts(
 async function postContact(
 	db: Database,
 	userId: TUser['id'],
-	{ contact }: z.TypeOf<typeof PostContactsRequestV1Schema>
+	{ contact }: z.TypeOf<typeof PostContactRequestV1Schema>
 ) {
 	const [_contact] = await db
 		.insert(contacts)
@@ -40,27 +39,4 @@ async function postContact(
 	return _contact;
 }
 
-async function deleteContact(db: Database, userId: TUser['id'], id: TContact['id']) {
-	await db.transaction(async (tx) => {
-		await tx.delete(listContactAssociation).where(eq(listContactAssociation.contactId, id));
-		await tx.delete(contacts).where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
-	});
-	return {};
-}
-
-async function putContact(
-	db: Database,
-	userId: TUser['id'],
-	id: TContact['id'],
-	{ contact }: z.TypeOf<typeof PutContactsRequestV1Schema>
-) {
-	const [_contact] = await db
-		.update(contacts)
-		.set(contact)
-		.where(and(eq(contacts.id, id), eq(contacts.userId, userId)))
-		.returning();
-
-	return _contact;
-}
-
-export { deleteContact, getContacts, postContact, putContact };
+export { getContacts, postContact };

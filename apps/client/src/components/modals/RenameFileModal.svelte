@@ -34,7 +34,7 @@
 		try {
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
 			const filetype = node.name.split('.').pop()!;
-			const db = await getSQLocalClient();
+			const [rawDb, db] = await getSQLocalClient();
 			await putNode(db, DEFAULT_LOCAL_USER_ID, node.id, { node: { name: `${name}.${filetype}` } });
 			await invalidate(`pwd:${pwd}`);
 		} finally {

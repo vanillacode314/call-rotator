@@ -40,7 +40,7 @@
 				return;
 			}
 			formData.set('node', JSON.stringify({ name, parent_id: $page.data.node.id, metadata: null }));
-			const db = await getSQLocalClient();
+			const [rawDb, db] = await getSQLocalClient();
 			await postNode(db, DEFAULT_LOCAL_USER_ID, {
 				node: { name: name, parentId: $page.data.node.id, listId: null }
 			});

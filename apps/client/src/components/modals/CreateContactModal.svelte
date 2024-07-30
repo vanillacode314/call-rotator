@@ -6,24 +6,46 @@
 <script lang="ts">
 	import { Button } from '$/components/ui/button';
 	import * as Dialog from '$/components/ui/dialog';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import ContactForm from './ContactForm.svelte';
-	import { page } from '$app/stores';
 	import { postContact } from 'db/queries/v1/contacts/index';
-	import { PostContactsRequestV1Schema } from 'schema/routes/api/v1/contacts/index';
+	import {
+		PostContactResponseV1Schema,
+		PostContactRequestV1Schema
+	} from 'schema/routes/api/v1/contacts/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import { createFetcher } from '$/utils/zod';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-	async function onsubmit(e: SubmitEvent) {
-		e.preventDefault();
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwtToken'),
+			'Content-Type': 'application/json'
+		}
+	});
+
+	async function onsubmit(event: SubmitEvent) {
+		event.preventDefault();
 		try {
 			const data = parseFormData(
-				e.target as HTMLFormElement,
-				PostContactsRequestV1Schema.shape.contact
+				event.target as HTMLFormElement,
+				PostContactRequestV1Schema.shape.contact
 			);
-			const db = await getSQLocalClient();
-			await postContact(db, DEFAULT_LOCAL_USER_ID, { contact: data });
+			const [rawDb, db] = await getSQLocalClient();
+			await db.transaction(async (tx) => {
+				await postContact(tx, DEFAULT_LOCAL_USER_ID, { contact: data });
+				const { result, success } = await fetcher(
+					PostContactResponseV1Schema,
+					PUBLIC_API_BASE_URL + '/api/v1/private/contacts',
+					{ method: 'POST', body: JSON.stringify({ contact: data }) }
+				);
+				if (!success) {
+					toastErrors(result.issues);
+					throw new Error('Failed to create contact');
+				}
+			});
 			await invalidate(`contacts:contacts`);
 		} finally {
 			$newContactModalOpen = false;

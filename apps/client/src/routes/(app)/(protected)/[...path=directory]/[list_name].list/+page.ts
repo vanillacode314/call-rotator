@@ -11,7 +11,7 @@ export const load = (async (event) => {
 	event.depends(`list:${pwd}`);
 	let list: TList | null = null;
 	let contacts: TContact[] = [];
-	const db = await getSQLocalClient();
+	const [rawDb, db] = await getSQLocalClient();
 	const result = await getListByPath(db, DEFAULT_LOCAL_USER_ID, pwd);
 	if (result === null) error(404, 'Invalid Path');
 	({ list, contacts } = result);

@@ -31,7 +31,7 @@
 					icon: 'i-carbon:trash-can',
 					async onYes() {
 						queueTask(queue, 'Deleting', async () => {
-							const db = await getSQLocalClient();
+							const [rawDb, db] = await getSQLocalClient();
 							await deleteNode(db, DEFAULT_LOCAL_USER_ID, file.id);
 							await invalidate(`pwd:${pwd}`);
 						});

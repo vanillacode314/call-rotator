@@ -3,6 +3,7 @@ import { PUBLIC_API_BASE_URL } from '$env/static/public';
 import { get } from '@square/svelte-store';
 import { redirect } from '@sveltejs/kit';
 import { jwtDecode } from 'jwt-decode';
+import type { TUser } from 'schema/db';
 import { GetSessionResponseV1Schema } from 'schema/routes/api/v1/get-session';
 import type { LayoutLoad } from './$types';
 

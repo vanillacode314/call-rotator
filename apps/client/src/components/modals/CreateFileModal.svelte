@@ -34,7 +34,7 @@
 				listId: null
 			};
 			formData.set('node', JSON.stringify(node));
-			const db = await getSQLocalClient();
+			const [rawDb, db] = await getSQLocalClient();
 			await postNode(db, DEFAULT_LOCAL_USER_ID, { node });
 			await invalidate(`pwd:${pwd}`);
 		} finally {

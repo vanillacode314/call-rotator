@@ -9,21 +9,42 @@
 	import { showTextModal } from '$/components/modals/TextModal.svelte';
 	import { createFetcher } from '$/utils/zod';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
-	import { page } from '$app/stores';
-	import { deleteContact } from 'db/queries/v1/contacts/index';
+	import { deleteContact } from 'db/queries/v1/contacts/[id]/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { toast } from 'svelte-sonner';
 	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import type { TContact } from 'schema/db';
+	import { DeleteContactResponseV1Schema } from 'schema/routes/api/v1/contacts/[id]/index';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { toastErrors } from '$/utils';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			Authorization: 'Bearer ' + localStorage.getItem('jwtToken'),
+			'Content-Type': 'application/json'
+		}
+	});
 
 	export let contact: TContact;
 
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
-			const db = await getSQLocalClient();
-			await deleteContact(db, DEFAULT_LOCAL_USER_ID, contact.id);
+			const [rawDb, db] = await getSQLocalClient();
+			await db.transaction(async (tx) => {
+				await deleteContact(tx, DEFAULT_LOCAL_USER_ID, contact.id);
+				const { result, success } = await fetcher(
+					DeleteContactResponseV1Schema,
+					PUBLIC_API_BASE_URL + `/api/v1/private/contacts/${contact.id}`,
+					{ method: 'DELETE' }
+				);
+
+				if (!success) {
+					toastErrors(result.issues);
+					throw new Error('Failed to remove contact');
+				}
+			});
 			await invalidate(`contacts:contacts`);
 		});
 	}

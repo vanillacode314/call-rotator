@@ -1,26 +1,21 @@
 import { showMigrateModal } from '$/components/modals/MigrationModal.svelte';
 import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+import { nodes, users } from 'db/schema';
 import { and, eq, sql } from 'drizzle-orm';
 import type { SqliteRemoteDatabase } from 'drizzle-orm/sqlite-proxy';
-import { nodes, users } from './schema';
 import { MIGRATIONS } from './sqlocal.migrations';
 
 let firstRun: boolean = true;
 let module: typeof import('./sqlocal.db');
-async function getSQLocalClient() {
+async function getSQLocalClient(path = 'database.sqlite3') {
 	if (!module) module = await import('./sqlocal.db');
-	if (!firstRun) return module.db;
+	if (!firstRun) return module.getDb(path);
 
+	const [rawDb, db] = await module.getDb(path);
 	firstRun = false;
-	await runMigrations(module.db);
-	await seed(module.db);
-	// console.log(await module.db.select().from(listContactAssociation));
-	return module.db;
-}
-
-async function getRawSQLocalClient() {
-	if (!module) module = await import('./sqlocal.db');
-	return module.dbx;
+	await runMigrations(db);
+	await seed(db);
+	return [rawDb, db] as const;
 }
 
 async function runMigrations(db: SqliteRemoteDatabase) {
@@ -69,4 +64,4 @@ async function seed(db: SqliteRemoteDatabase, userId = DEFAULT_LOCAL_USER_ID) {
 			.onConflictDoNothing();
 }
 
-export { getRawSQLocalClient, getSQLocalClient, seed };
+export { getSQLocalClient, seed };

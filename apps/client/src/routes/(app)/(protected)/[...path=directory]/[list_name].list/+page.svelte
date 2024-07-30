@@ -33,7 +33,7 @@
 	async function importContact() {
 		const newContacts = await openContactPicker();
 		queueTask(queue, 'Importing Contacts', async () => {
-			const db = await getSQLocalClient();
+			const [rawDb, db] = await getSQLocalClient();
 			await postListContactById(db, DEFAULT_LOCAL_USER_ID, list.id, {
 				contactIds: newContacts.map((contact) => contact.id)
 			});
@@ -60,7 +60,7 @@
 			result.error.errors.forEach((err) => toast.error(err.message));
 			return;
 		}
-		const db = await getSQLocalClient();
+		const [rawDb, db] = await getSQLocalClient();
 		await putList(db, DEFAULT_LOCAL_USER_ID, list.id, { list: Object.assign(list, result.data) });
 		toast.success('List updated');
 		await invalidate(`list:${pwd}`);

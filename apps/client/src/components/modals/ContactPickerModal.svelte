@@ -10,7 +10,7 @@
 	let _reject: (contacts: TContact[]) => void = () => {};
 
 	async function openContactPicker(selectedIds: TContact['id'][] = []) {
-		const db = await getSQLocalClient();
+		const [rawDb, db] = await getSQLocalClient();
 		const allContacts = await getContacts(db, DEFAULT_LOCAL_USER_ID, {
 			page: pageNo,
 			itemsPerPage

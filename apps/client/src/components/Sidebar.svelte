@@ -20,7 +20,7 @@
 	<div class="border-offset-background flex flex-col gap-2">
 		{#each $actions as action}
 			<Button
-				class="flex items-center justify-end gap-2 self-end text-xs font-bold uppercase tracking-wider"
+				class="flex items-center justify-start gap-2 text-xs font-bold uppercase tracking-wider"
 				on:click={action.onclick}
 				variant="ghost"
 				type="button"

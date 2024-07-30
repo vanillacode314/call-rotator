@@ -5,8 +5,8 @@ CREATE TABLE `contacts` (
 	`notes` text DEFAULT '' NOT NULL,
 	`tags` text DEFAULT '[]' NOT NULL,
 	`userId` integer NOT NULL,
-	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP),
+	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -23,8 +23,8 @@ CREATE TABLE `lists` (
 	`cycleDurationDays` integer DEFAULT 7 NOT NULL,
 	`startDate` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`userId` integer NOT NULL,
-	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP),
+	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
 );
 --> statement-breakpoint
@@ -34,8 +34,8 @@ CREATE TABLE `nodes` (
 	`parentId` integer,
 	`listId` integer,
 	`userId` integer NOT NULL,
-	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP),
+	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	FOREIGN KEY (`parentId`) REFERENCES `nodes`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`listId`) REFERENCES `lists`(`id`) ON UPDATE no action ON DELETE cascade,
 	FOREIGN KEY (`userId`) REFERENCES `users`(`id`) ON UPDATE no action ON DELETE cascade
@@ -46,8 +46,8 @@ CREATE TABLE `users` (
 	`email` text NOT NULL,
 	`password` text NOT NULL,
 	`emailVerified` integer,
-	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP),
-	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP)
+	`createdAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
+	`updatedAt` integer DEFAULT (CURRENT_TIMESTAMP) NOT NULL
 );
 --> statement-breakpoint
 CREATE TABLE `verificationTokens` (
