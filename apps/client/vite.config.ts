@@ -29,6 +29,7 @@ export default defineConfig({
 		Unocss(),
 		sveltekit()
 	],
+	clearScreen: false,
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
 	}
