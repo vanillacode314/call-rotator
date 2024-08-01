@@ -12,7 +12,12 @@
     "type-check": {},
     "dev": {
       "cache": false,
-      "persistent": true
+      "persistent": true,
+      "passThroughEnv": [
+        "AUTH_SECRET",
+        "TURSO_AUTH_TOKEN",
+        "TURSO_CONNECTION_URL"
+      ]
     },
     "format": {}
   }
