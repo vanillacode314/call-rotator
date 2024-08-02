@@ -2,10 +2,7 @@ import { z } from 'zod';
 import { ErrorResponseV1Schema } from '~schema/api';
 import { nodeSchema } from '~schema/db';
 
-const GetNodesByPathRequestV1Schema = z.object({
-	includeChildren: z.boolean().default(false)
-});
-
+const GetNodesByPathRequestV1Schema = z.object({ includeChildren: z.boolean().default(false) });
 const GetNodesByPathResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),

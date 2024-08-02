@@ -2,6 +2,7 @@ import bcrypt from 'bcrypt';
 import { nodes, users } from 'db/schema';
 import { count, eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
+import { ApiErrorCodeSchema } from 'schema/api';
 import { userSchema } from 'schema/db';
 import { SignUpRequestV1Schema } from 'schema/routes/api/v1/signup';
 import { db } from '~/utils/db';
@@ -16,7 +17,7 @@ export default defineEventHandler(async (event) => {
 			result: {
 				issues: result.error.errors.map((error) => ({
 					message: error.message,
-					code: 'INVALID_CREDENTIALS'
+					code: ApiErrorCodeSchema.enum.INVALID_CREDENTIALS
 				}))
 			}
 		};
@@ -34,7 +35,7 @@ export default defineEventHandler(async (event) => {
 				issues: [
 					{
 						message: 'Email already registered',
-						code: 'EMAIL_ALREADY_REGISTERED'
+						code: ApiErrorCodeSchema.enum.EMAIL_ALREADY_REGISTERED
 					}
 				]
 			}

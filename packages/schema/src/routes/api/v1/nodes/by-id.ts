@@ -3,7 +3,6 @@ import { ErrorResponseV1Schema } from '~schema/api';
 import { nodeSchema } from '~schema/db';
 
 const GetNodeByIdRequestV1Schema = z.object({ includeChildren: z.boolean().default(false) });
-
 const GetNodeByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),
@@ -19,7 +18,6 @@ const GetNodeByIdResponseV1Schema = z.discriminatedUnion('success', [
 const PutNodeByIdRequestV1Schema = z.object({
 	node: nodeSchema.omit({ id: true, userId: true }).partial()
 });
-
 const PutNodeByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),

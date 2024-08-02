@@ -3,7 +3,6 @@ import { ErrorResponseV1Schema } from '~schema/api';
 import { contactSchema, listSchema } from '~schema/db';
 
 const GetListByPathRequestV1Schema = z.object({});
-
 const GetListByPathResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),

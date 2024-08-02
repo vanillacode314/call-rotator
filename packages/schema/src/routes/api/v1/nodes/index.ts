@@ -5,7 +5,6 @@ import { nodeSchema } from '~schema/db';
 const PostNodeRequestV1Schema = z.object({
 	node: nodeSchema.omit({ id: true, userId: true }).required()
 });
-
 const PostNodeResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),

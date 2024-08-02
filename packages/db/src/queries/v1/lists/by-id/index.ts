@@ -25,13 +25,13 @@ async function putList(
 	userId: TUser['id'],
 	id: TList['id'],
 	{ list }: z.TypeOf<typeof PutListByIdRequestV1Schema>
-) {
+): Promise<TList | null> {
 	const [_list] = await db
 		.update(lists)
 		.set(list)
 		.where(and(eq(lists.id, id), eq(lists.userId, userId)))
 		.returning();
-	return _list;
+	return _list ?? null;
 }
 
 async function deleteList(db: Database, userId: TUser['id'], id: TList['id']) {

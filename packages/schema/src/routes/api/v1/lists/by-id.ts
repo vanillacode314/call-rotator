@@ -3,7 +3,6 @@ import { ErrorResponseV1Schema } from '~schema/api';
 import { contactSchema, listSchema } from '~schema/db';
 
 const GetListByIdRequestV1Schema = z.object({});
-
 const GetListByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),
@@ -19,7 +18,6 @@ const GetListByIdResponseV1Schema = z.discriminatedUnion('success', [
 const PutListByIdRequestV1Schema = z.object({
 	list: listSchema.omit({ id: true, userId: true }).partial()
 });
-
 const PutListByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),
@@ -31,19 +29,7 @@ const PutListByIdResponseV1Schema = z.discriminatedUnion('success', [
 	ErrorResponseV1Schema
 ]);
 
-const DeleteListByIdRequestV1Schema = z.unknown();
-const DeleteListByIdResponseV1Schema = z.discriminatedUnion('success', [
-	z.object({
-		status: z.number(),
-		success: z.literal(true),
-		result: z.object({})
-	}),
-	ErrorResponseV1Schema
-]);
-
 export {
-	DeleteListByIdRequestV1Schema,
-	DeleteListByIdResponseV1Schema,
 	GetListByIdRequestV1Schema,
 	GetListByIdResponseV1Schema,
 	PutListByIdRequestV1Schema,

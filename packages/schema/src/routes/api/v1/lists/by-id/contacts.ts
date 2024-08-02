@@ -5,7 +5,6 @@ import { contactSchema } from '~schema/db';
 const PostListContactByIdRequestV1Schema = z.object({
 	contactIds: contactSchema.shape.id.array()
 });
-
 const PostListContactByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({
 		status: z.number(),

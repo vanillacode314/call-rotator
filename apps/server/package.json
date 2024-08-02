@@ -9,6 +9,8 @@
     "start": "node .output/server/index.mjs"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
+    "@types/jsonwebtoken": "^9.0.6",
     "nitropack": "^2.9.7",
     "prettier": "^3.3.3"
   },
