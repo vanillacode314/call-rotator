@@ -17,7 +17,7 @@ function getContact(
 	return db
 		.select()
 		.from(contacts)
-		.where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
+		.where(and(eq(contacts.id, id), eq(contacts.userId, userId), eq(contacts.deleted, false)));
 }
 
 async function deleteContact(db: Database, userId: TUser['id'], id: TContact['id']) {

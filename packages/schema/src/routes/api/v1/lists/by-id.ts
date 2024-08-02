@@ -16,7 +16,7 @@ const GetListByIdResponseV1Schema = z.discriminatedUnion('success', [
 ]);
 
 const PutListByIdRequestV1Schema = z.object({
-	list: listSchema.omit({ id: true, userId: true }).partial()
+	list: listSchema.omit({ id: true, userId: true, deleted: true }).partial()
 });
 const PutListByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({

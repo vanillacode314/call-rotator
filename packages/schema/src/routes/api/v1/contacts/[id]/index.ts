@@ -17,7 +17,7 @@ const GetContactResponseV1Schema = z.discriminatedUnion('success', [
 
 const PutContactRequestV1Schema = z.object({
 	contact: contactSchema
-		.omit({ id: true, userId: true, createdAt: true, updatedAt: true })
+		.omit({ id: true, userId: true, createdAt: true, updatedAt: true, deleted: true })
 		.partial()
 });
 

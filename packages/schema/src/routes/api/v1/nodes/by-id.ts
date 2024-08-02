@@ -16,7 +16,7 @@ const GetNodeByIdResponseV1Schema = z.discriminatedUnion('success', [
 ]);
 
 const PutNodeByIdRequestV1Schema = z.object({
-	node: nodeSchema.omit({ id: true, userId: true }).partial()
+	node: nodeSchema.omit({ id: true, userId: true, deleted: true }).partial()
 });
 const PutNodeByIdResponseV1Schema = z.discriminatedUnion('success', [
 	z.object({

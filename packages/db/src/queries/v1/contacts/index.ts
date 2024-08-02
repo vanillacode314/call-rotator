@@ -1,4 +1,4 @@
-import { count, eq } from 'drizzle-orm';
+import { and, count, eq } from 'drizzle-orm';
 import type { TUser } from 'schema/db';
 import {
 	GetContactsRequestV1Schema,
@@ -14,13 +14,16 @@ async function getContacts(
 	{ page, itemsPerPage }: z.TypeOf<typeof GetContactsRequestV1Schema>
 ) {
 	const [[{ total }], rows] = await Promise.all([
-		db.select({ total: count() }).from(contacts).where(eq(contacts.userId, userId)),
+		db
+			.select({ total: count() })
+			.from(contacts)
+			.where(and(eq(contacts.userId, userId), eq(contacts.deleted, false))),
 		db
 			.select()
 			.from(contacts)
 			.offset((page - 1) * itemsPerPage)
 			.limit(itemsPerPage)
-			.where(eq(contacts.userId, userId))
+			.where(and(eq(contacts.userId, userId), eq(contacts.deleted, false)))
 	]);
 
 	return { total, contacts: rows };

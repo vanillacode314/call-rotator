@@ -21,7 +21,7 @@ const GetContactsResponseV1Schema = z.discriminatedUnion('success', [
 
 const PostContactRequestV1Schema = z.object({
 	contact: contactSchema
-		.omit({ id: true, userId: true, createdAt: true, updatedAt: true })
+		.omit({ id: true, userId: true, createdAt: true, updatedAt: true, deleted: true })
 		.required()
 });
 
@@ -30,7 +30,7 @@ const PostContactResponseV1Schema = z.discriminatedUnion('success', [
 		status: z.number(),
 		success: z.literal(true),
 		result: z.object({
-			contact: contactSchema.omit({ createdAt: true, updatedAt: true })
+			contact: contactSchema.omit({ createdAt: true, updatedAt: true, deleted: true })
 		})
 	}),
 	ErrorResponseV1Schema
