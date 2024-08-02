@@ -3,7 +3,9 @@ import type { TypeOf } from 'zod';
 
 declare module 'h3' {
 	interface H3EventContext {
-		user: NonNullable<TypeOf<typeof GetSessionResponseV1Schema.shape.user>>;
+		user: NonNullable<
+			TypeOf<typeof GetSessionResponseV1Schema.shape.user> & { exp: number; iat: number }
+		>;
 	}
 }
 

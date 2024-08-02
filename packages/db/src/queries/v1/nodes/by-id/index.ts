@@ -5,7 +5,7 @@ import {
 	PutNodeByIdRequestV1Schema
 } from 'schema/routes/api/v1/nodes/by-id';
 import type { z } from 'zod';
-import { nodes } from '~db/schema';
+import { listContactAssociation, lists, nodes } from '~db/schema';
 import { Database } from '~db/types';
 
 async function getNodeById(
@@ -18,7 +18,13 @@ async function getNodeById(
 		const rows = await db
 			.select()
 			.from(nodes)
-			.where(and(or(eq(nodes.id, id), eq(nodes.parentId, id)), eq(nodes.userId, userId)));
+			.where(
+				and(
+					or(eq(nodes.id, id), eq(nodes.parentId, id)),
+					eq(nodes.userId, userId),
+					eq(nodes.deleted, false)
+				)
+			);
 		if (rows[0] === undefined) return null;
 		const node = rows.shift()!;
 		return { node, children: rows };
@@ -26,7 +32,7 @@ async function getNodeById(
 		const [node] = await db
 			.select()
 			.from(nodes)
-			.where(and(eq(nodes.id, id), eq(nodes.userId, userId)))
+			.where(and(eq(nodes.id, id), eq(nodes.userId, userId), eq(nodes.deleted, false)))
 			.limit(1);
 		return node ? { node, children: [] } : null;
 	}
@@ -46,11 +52,22 @@ async function putNode(
 }
 
 async function deleteNode(db: Database, userId: TUser['id'], id: TNode['id']) {
-	const [_node] = await db
-		.delete(nodes)
-		.where(and(eq(nodes.userId, userId), eq(nodes.id, id)))
-		.returning();
-	return _node;
+	return db.transaction(async (tx) => {
+		const [_node] = await db
+			.update(nodes)
+			.set({ deleted: true })
+			.where(and(eq(nodes.userId, userId), eq(nodes.id, id)))
+			.returning();
+		if (_node.listId === null) return _node;
+
+		await db.update(lists).set({ deleted: true }).where(eq(lists.id, _node.listId));
+		await db
+			.update(listContactAssociation)
+			.set({ deleted: true })
+			.where(eq(listContactAssociation.listId, _node.listId));
+
+		return _node;
+	});
 }
 
 export { deleteNode, getNodeById, putNode };

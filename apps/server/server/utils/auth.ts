@@ -1,6 +1,5 @@
 import jwt from 'jsonwebtoken';
 import { GetSessionResponseV1Schema } from 'schema/routes/api/v1/get-session';
-import z from 'zod';
 
 export async function getUser(header: string | null | undefined) {
 	if (!header) return null;
@@ -8,9 +7,7 @@ export async function getUser(header: string | null | undefined) {
 	if (!token) return null;
 
 	try {
-		return jwt.verify(token, env.AUTH_SECRET) as z.TypeOf<
-			typeof GetSessionResponseV1Schema.shape.user
-		>;
+		return GetSessionResponseV1Schema.shape.user.parse(jwt.verify(token, env.AUTH_SECRET));
 	} catch (err) {
 		return null;
 	}

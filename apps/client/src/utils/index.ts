@@ -63,12 +63,24 @@ function isValidJSON(json: string) {
 	}
 }
 
+function omitKeys<T extends Record<string, unknown>>(
+	obj: T,
+	keys: (keyof T | (string & {}))[]
+): Omit<T, (typeof keys)[number]> {
+	const copy = { ...obj };
+	for (const key of keys) {
+		delete copy[key];
+	}
+	return copy;
+}
+
 export {
 	asyncMap,
 	filterInPlace,
 	formatDate,
 	isEmpty,
 	isValidJSON,
+	omitKeys,
 	parseFormData,
 	safeParseFormData,
 	selectInputById,

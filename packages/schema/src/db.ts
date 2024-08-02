@@ -8,8 +8,8 @@ const userSchema = z.object({
 	email: z.string().email(),
 	password: z.string(),
 	emailVerified: timestamp().nullable(),
-	createdAt: timestamp(),
-	updatedAt: timestamp()
+	createdAt: z.date(),
+	updatedAt: z.date()
 });
 
 const verificationTokenSchema = z.object({
@@ -25,7 +25,8 @@ const nodeSchema = z.object({
 	listId: id().nullable(),
 	userId: id(),
 	createdAt: z.date(),
-	updatedAt: z.date()
+	updatedAt: z.date(),
+	deleted: z.boolean()
 });
 
 const listSchema = z.object({
@@ -34,7 +35,8 @@ const listSchema = z.object({
 	startDate: z.date(),
 	userId: id(),
 	createdAt: z.date(),
-	updatedAt: z.date()
+	updatedAt: z.date(),
+	deleted: z.boolean()
 });
 
 const contactSchema = z.object({
@@ -45,12 +47,16 @@ const contactSchema = z.object({
 	tags: z.string().array().default(Array),
 	userId: id(),
 	createdAt: z.date(),
-	updatedAt: z.date()
+	updatedAt: z.date(),
+	deleted: z.boolean()
 });
 
 const listContactAssociationSchema = z.object({
 	listId: id(),
-	contactId: id()
+	contactId: id(),
+	createdAt: z.date(),
+	updatedAt: z.date(),
+	deleted: z.boolean()
 });
 
 export {

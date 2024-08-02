@@ -21,11 +21,17 @@ function getContact(
 }
 
 async function deleteContact(db: Database, userId: TUser['id'], id: TContact['id']) {
-	await db.transaction(async (tx) => {
-		await tx.delete(listContactAssociation).where(eq(listContactAssociation.contactId, id));
-		await tx.delete(contacts).where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
+	return await db.transaction(async (tx) => {
+		await db
+			.update(contacts)
+			.set({ deleted: true })
+			.where(and(eq(contacts.id, id), eq(contacts.userId, userId)));
+		await db
+			.update(listContactAssociation)
+			.set({ deleted: true })
+			.where(eq(listContactAssociation.contactId, id));
+		return {};
 	});
-	return {};
 }
 
 async function putContact(

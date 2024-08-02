@@ -9,7 +9,8 @@ async function deleteListContactById(
 	contactIds: TContact['id'][]
 ) {
 	await db
-		.delete(listContactAssociation)
+		.update(listContactAssociation)
+		.set({ deleted: true })
 		.where(
 			and(
 				inArray(listContactAssociation.contactId, contactIds),

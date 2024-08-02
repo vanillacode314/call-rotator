@@ -14,6 +14,7 @@ const GET_NODES_BY_PATH_QUERY = (
 	    WHERE
 	      parentId IS NULL
 	      AND userId = __userid
+				AND deleted = 0
 	    UNION ALL
 	    SELECT
 	      n.id,
@@ -32,7 +33,8 @@ const GET_NODES_BY_PATH_QUERY = (
 		.replace(
 			/__includeChildren/g,
 			includeChildren
-				? `
+				? // with children
+					`
 				SELECT
 				  *
 				FROM
@@ -44,17 +46,18 @@ const GET_NODES_BY_PATH_QUERY = (
 				    FROM
 				      CTE
 				    WHERE
-				      parent_path = __path
-				  )
-				  OR parentId = (
+				      parent_path = __path AND deleted = 0
+				  ) OR parentId = (
 				    SELECT
 				      id
 				    FROM
 				      CTE
 				    WHERE
-				      parent_path = __path
-				  )`.replace(/__path/g, `'${path}'`)
-				: `
+				      parent_path = __path AND deleted = 0
+				  ) AND deleted = 0
+					`.replace(/__path/g, `'${path}'`)
+				: // no children
+					`
 				SELECT
 				  *
 				FROM
@@ -66,8 +69,9 @@ const GET_NODES_BY_PATH_QUERY = (
 				    FROM
 				      CTE
 				    WHERE
-				      parent_path = __path
-				  )`.replace(/__path/g, `'${path}'`)
+				      parent_path = __path AND deleted = 0
+				  ) AND deleted = 0
+				`.replace(/__path/g, `'${path}'`)
 		);
 };
 
