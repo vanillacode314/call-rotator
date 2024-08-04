@@ -1,5 +1,3 @@
-if ('serviceWorker' in navigator) {
-	window.addEventListener('load', () => {
-		navigator.serviceWorker.register('/sw.js', { scope: '/' });
-	});
+if ('serviceWorker' in navigator && import.meta.env.PROD) {
+	navigator.serviceWorker.register('/sw.js', { scope: '/' });
 }
