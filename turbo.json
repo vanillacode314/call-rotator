@@ -13,6 +13,7 @@
     "dev": {
       "cache": false,
       "persistent": true,
+      "interactive": false,
       "passThroughEnv": [
         "AUTH_SECRET",
         "TURSO_AUTH_TOKEN",
