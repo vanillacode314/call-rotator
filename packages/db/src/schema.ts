@@ -12,11 +12,11 @@ const users = sqliteTable('users', {
 	id: int('id').primaryKey({ autoIncrement: true }),
 	email: text('email').notNull(),
 	password: text('password').notNull(),
-	emailVerified: int('emailVerified', { mode: 'timestamp_ms' }),
-	createdAt: int('createdAt', { mode: 'timestamp_ms' })
+	emailVerified: int('emailVerified', { mode: 'timestamp' }),
+	createdAt: int('createdAt', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch('now'))`),
-	updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+	updatedAt: int('updatedAt', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch('now'))`)
 		.$onUpdate(() => new Date())
@@ -28,7 +28,7 @@ const verificationTokens = sqliteTable(
 	{
 		identifier: text('identifier').notNull(),
 		token: text('token').notNull(),
-		expires: int('expires', { mode: 'timestamp_ms' }).notNull()
+		expires: int('expires', { mode: 'timestamp' }).notNull()
 	},
 	(vt) => ({
 		compoundKey: primaryKey({ columns: [vt.identifier, vt.token] })
@@ -49,10 +49,10 @@ const nodes = sqliteTable(
 		userId: int('userId')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		createdAt: int('createdAt', { mode: 'timestamp_ms' })
+		createdAt: int('createdAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`),
-		updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+		updatedAt: int('updatedAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`)
 			.$onUpdate(() => new Date()),
@@ -66,16 +66,16 @@ const nodes = sqliteTable(
 const lists = sqliteTable('lists', {
 	id: int('id').primaryKey(),
 	cycleDurationDays: int('cycleDurationDays').notNull().default(7),
-	startDate: int('startDate', { mode: 'timestamp_ms' })
+	startDate: int('startDate', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch('now'))`),
 	userId: int('userId')
 		.notNull()
 		.references(() => users.id, { onDelete: 'cascade' }),
-	createdAt: int('createdAt', { mode: 'timestamp_ms' })
+	createdAt: int('createdAt', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch('now'))`),
-	updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+	updatedAt: int('updatedAt', { mode: 'timestamp' })
 		.notNull()
 		.default(sql`(unixepoch('now'))`)
 		.$onUpdate(() => new Date()),
@@ -96,10 +96,10 @@ const contacts = sqliteTable(
 		userId: int('userId')
 			.notNull()
 			.references(() => users.id, { onDelete: 'cascade' }),
-		createdAt: int('createdAt', { mode: 'timestamp_ms' })
+		createdAt: int('createdAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`),
-		updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+		updatedAt: int('updatedAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`)
 			.$onUpdate(() => new Date()),
@@ -119,10 +119,10 @@ const listContactAssociation = sqliteTable(
 		contactId: int('contactId')
 			.references(() => contacts.id, { onDelete: 'cascade' })
 			.notNull(),
-		createdAt: int('createdAt', { mode: 'timestamp_ms' })
+		createdAt: int('createdAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`),
-		updatedAt: int('updatedAt', { mode: 'timestamp_ms' })
+		updatedAt: int('updatedAt', { mode: 'timestamp' })
 			.notNull()
 			.default(sql`(unixepoch('now'))`)
 			.$onUpdate(() => new Date()),
