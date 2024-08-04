@@ -60,6 +60,10 @@
 	];
 </script>
 
+<svelte:head>
+	<title>Call Rotator</title>
+</svelte:head>
+
 <div class="flex flex-col gap-4 py-4">
 	<PathCrumbs path={pwd} />
 	{#if pwd === '/'}

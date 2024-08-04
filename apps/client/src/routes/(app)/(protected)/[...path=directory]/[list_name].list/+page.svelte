@@ -121,7 +121,7 @@
 </script>
 
 <svelte:head>
-	<title>{path.compressPath(pwd)}</title>
+	<title>Call Rotator</title>
 </svelte:head>
 
 <div class="flex flex-col gap-4 py-4">

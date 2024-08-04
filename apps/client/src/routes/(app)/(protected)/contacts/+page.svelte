@@ -59,7 +59,7 @@
 </script>
 
 <svelte:head>
-	<title>{path.compressPath('/contacts')}</title>
+	<title>Contacts - Call Rotator</title>
 </svelte:head>
 
 <div class="flex flex-col gap-4 overflow-y-auto py-4">
