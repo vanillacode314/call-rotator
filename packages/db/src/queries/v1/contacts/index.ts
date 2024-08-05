@@ -37,6 +37,10 @@ async function postContact(
 	const [_contact] = await db
 		.insert(contacts)
 		.values({ ...contact, userId })
+		.onConflictDoUpdate({
+			target: [contacts.phone, contacts.userId],
+			set: { deleted: false, createdAt: new Date() }
+		})
 		.returning();
 
 	return _contact;

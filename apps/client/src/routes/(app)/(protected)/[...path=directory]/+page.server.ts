@@ -1,18 +1,17 @@
-import { DEFAULT_LOCAL_USER_ID } from '$/consts';
-import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+import { db } from '$/lib/db/libsql.db';
 import * as path from '$/utils/path';
 import { error } from '@sveltejs/kit';
 import { getNodeByPath } from 'db/queries/v1/nodes/by-path/index';
-import type { PageLoad } from './$types';
+import type { TNode } from 'schema/db';
+import type { PageServerLoad } from './$types';
 
-export const load = (async ({ parent, params, depends, fetch }) => {
-	const { user } = await parent();
-	const pwd = `${path.join('/', params.path)}`;
-	depends(`pwd:${pwd}`);
+export const load = (async (event) => {
+	const user = event.locals.user;
+	const pwd = `${path.join('/', event.params.path)}`;
+	event.depends(`pwd:${pwd}`);
 	let children: TNode[] | null = null;
 	let node: TNode | null = null;
-	const [rawDb, db] = await getSQLocalClient();
-	const data = await getNodeByPath(db, DEFAULT_LOCAL_USER_ID, pwd, { includeChildren: true });
+	const data = await getNodeByPath(db, user.id, pwd, { includeChildren: true });
 	if (data !== null) {
 		node = data.node;
 		children = data.children;
@@ -21,6 +20,9 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 		children.unshift({
 			id: node!.parentId!,
 			name: '..',
+			createdAt: new Date(),
+			updatedAt: new Date(),
+			deleted: false,
 			parentId: null,
 			listId: null,
 			userId: user!.id
@@ -29,4 +31,4 @@ export const load = (async ({ parent, params, depends, fetch }) => {
 
 	if (children === null) error(404, 'Invalid Path');
 	return { children, pwd, node };
-}) satisfies PageLoad;
+}) satisfies PageServerLoad;

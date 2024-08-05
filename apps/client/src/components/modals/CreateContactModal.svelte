@@ -21,9 +21,9 @@
 
 	const fetcher = createFetcher(fetch, {
 		headers: {
-			Authorization: 'Bearer ' + localStorage.getItem('jwtToken'),
 			'Content-Type': 'application/json'
-		}
+		},
+		credentials: 'include'
 	});
 
 	async function onsubmit(event: SubmitEvent) {
@@ -33,19 +33,15 @@
 				event.target as HTMLFormElement,
 				PostContactRequestV1Schema.shape.contact
 			);
-			const [rawDb, db] = await getSQLocalClient();
-			await db.transaction(async (tx) => {
-				await postContact(tx, DEFAULT_LOCAL_USER_ID, { contact: data });
-				const { result, success } = await fetcher(
-					PostContactResponseV1Schema,
-					PUBLIC_API_BASE_URL + '/api/v1/private/contacts',
-					{ method: 'POST', body: JSON.stringify({ contact: data }) }
-				);
-				if (!success) {
-					toastErrors(result.issues);
-					throw new Error('Failed to create contact');
-				}
-			});
+			const { result, success } = await fetcher(
+				PostContactResponseV1Schema,
+				PUBLIC_API_BASE_URL + '/api/v1/private/contacts',
+				{ method: 'POST', body: JSON.stringify({ contact: data }) }
+			);
+			if (!success) {
+				toastErrors(result.issues);
+				throw new Error('Failed to create contact');
+			}
 			await invalidate(`contacts:contacts`);
 		} finally {
 			$newContactModalOpen = false;

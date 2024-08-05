@@ -57,7 +57,7 @@ export default defineEventHandler(async (event) => {
 		return PutListByIdResponseV1Schema.parse({
 			success: true,
 			status: 200,
-			result: result3
+			result: { list: result3 }
 		});
 	});
 });

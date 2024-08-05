@@ -12,7 +12,7 @@ const GetContactsResponseV1Schema = z.discriminatedUnion('success', [
 		status: z.number(),
 		success: z.literal(true),
 		result: z.object({
-			contacts: contactSchema.omit({ createdAt: true, updatedAt: true }).array(),
+			contacts: contactSchema.array(),
 			total: z.number().int().nonnegative()
 		})
 	}),

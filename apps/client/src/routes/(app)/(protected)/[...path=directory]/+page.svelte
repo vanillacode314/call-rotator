@@ -15,6 +15,7 @@
 	import { DEFAULT_LOCAL_USER_ID, RESERVED_FILE_DATA_MAP, RESERVED_FILE_NAMES } from '$/consts';
 	import { page } from '$app/stores';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { cn } from '$/utils/ui';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
@@ -45,14 +46,14 @@
 	$actions = [
 		{
 			label: 'Create Folder',
-			icon: 'i-carbon:folder-add',
+			icon: 'i-heroicons:folder-plus',
 			onclick() {
 				$addFolderModalOpen = true;
 			}
 		},
 		{
 			label: 'Create File',
-			icon: 'i-carbon:document-add',
+			icon: 'i-heroicons:document-plus',
 			onclick() {
 				$createFileModalOpen = true;
 			}
@@ -74,10 +75,10 @@
 				<li class="grid">
 					<Button
 						variant="secondary"
-						class="flex items-center justify-start gap-2"
+						class="flex items-end justify-start gap-2"
 						on:click={() => goto(RESERVED_FILE_DATA_MAP[filename].url)}
 					>
-						<span class={RESERVED_FILE_DATA_MAP[filename].icon}></span>
+						<span class={cn(RESERVED_FILE_DATA_MAP[filename].icon, 'text-2xl')}></span>
 						<span class="truncate">{RESERVED_FILE_DATA_MAP[filename].label}</span>
 					</Button>
 				</li>
@@ -152,10 +153,10 @@
 						<Button
 							draggable="true"
 							variant="secondary"
-							class="flex items-center justify-start gap-2"
+							class="flex items-end  justify-start gap-2"
 							on:click={() => goto(path.join(pwd, folder.name))}
 						>
-							<span class="i-carbon:folder"></span>
+							<span class="i-heroicons:folder text-2xl"></span>
 							<span class="truncate">{folder.name}</span>
 						</Button>
 					</li>
@@ -175,10 +176,10 @@
 					>
 						<Button
 							variant="secondary"
-							class="flex items-center justify-start gap-2"
+							class="flex items-end justify-start gap-2"
 							on:click={() => goto(path.join(pwd, file.name))}
 						>
-							<span class="i-carbon:document"></span>
+							<span class="i-heroicons:document text-2xl"></span>
 							<span class="truncate">{file.name}</span>
 						</Button>
 					</li>

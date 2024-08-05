@@ -9,6 +9,7 @@ export default defineEventHandler(async (event) => {
 	const result = await readValidatedBody(event, PostNodeRequestV1Schema.safeParse);
 	if (!result.success) {
 		setResponseStatus(event, 400);
+		console.error(result.error.errors);
 		return {
 			status: 400,
 			success: false,

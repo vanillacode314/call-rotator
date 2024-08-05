@@ -10,5 +10,5 @@ export default defineConfig((options) => ({
 	minify: !options.watch,
 	sourcemap: true,
 	clean: true,
-	onSuccess: options.watch ? 'tsc --emitDeclarationOnly --declaration' : undefined
+	onSuccess: 'tsc --emitDeclarationOnly --declaration'
 }));

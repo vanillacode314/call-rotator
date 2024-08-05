@@ -9,7 +9,7 @@
 	<Breadcrumb.List>
 		<Breadcrumb.Item>
 			<Breadcrumb.Link href="/">
-				<span class="i-carbon:home" />
+				<span class="i-heroicons:home text-2xl" />
 			</Breadcrumb.Link>
 		</Breadcrumb.Item>
 		{#each parts as part, index}

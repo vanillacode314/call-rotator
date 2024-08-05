@@ -1,6 +1,14 @@
 <script lang="ts" context="module">
 	import { writable } from '@square/svelte-store';
 	import type { TContact } from 'schema/db';
+	import { createFetcher } from '$/utils/zod';
+
+	const fether = createFetcher(fetch, {
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
+	});
 
 	let pageNo = 1;
 	let itemsPerPage = 10;
@@ -10,14 +18,21 @@
 	let _reject: (contacts: TContact[]) => void = () => {};
 
 	async function openContactPicker(selectedIds: TContact['id'][] = []) {
-		const [rawDb, db] = await getSQLocalClient();
-		const allContacts = await getContacts(db, DEFAULT_LOCAL_USER_ID, {
-			page: pageNo,
-			itemsPerPage
+		const searchParams = new URLSearchParams({
+			pageNo: String(pageNo),
+			itemsPerPage: String(itemsPerPage)
 		});
-		console.log(allContacts);
+		const { result, success } = await fether(
+			GetContactsResponseV1Schema,
+			PUBLIC_API_BASE_URL + `/api/v1/private/contacts?${searchParams.toString()}`
+		);
+		if (!success) {
+			toastErrors(result.issues);
+			open.set(false);
+			return;
+		}
 		open.set(true);
-		contacts.set(allContacts.contacts);
+		contacts.set(result.contacts);
 		return new Promise<TContact[]>((resolve, reject) => {
 			_resolve = resolve;
 			_reject = reject;
@@ -32,9 +47,9 @@
 	import * as Dialog from '$/components/ui/dialog';
 	import { Checkbox } from '$/components/ui/checkbox';
 	import { Label } from '$/components/ui/label';
-	import { getContacts } from 'db/queries/v1/contacts/index';
-	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
-	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import { GetContactsResponseV1Schema } from 'schema/routes/api/v1/contacts/index';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { toastErrors } from '$/utils';
 
 	let selected: boolean[] = [];
 	function onsubmit(event: SubmitEvent) {

@@ -12,18 +12,22 @@
 	import { createFetcher } from '$/utils/zod';
 	import { queueTask, useTaskQueue } from '$/stores/task-queue';
 	import { useClipboard } from '$/stores/clipboard';
-	import { deleteNode } from 'db/queries/v1/nodes/by-id/index';
-	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
-	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { DeleteNodeByIdResponseV1Schema } from 'schema/routes/api/v1/nodes/by-id';
+	import { toastErrors } from '$/utils';
+	import { type TNode } from 'schema/db';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
+	});
 
 	$: pwd = decodeURI($page.url.pathname);
-
 	export let folder: TNode;
-
-	const fetcher = createFetcher(fetch);
 </script>
 
 <ContextMenu>
@@ -35,8 +39,16 @@
 					icon: 'i-carbon:trash-can',
 					async onYes() {
 						queueTask(queue, 'Deleting', async () => {
-							const [rawDb, db] = await getSQLocalClient();
-							await deleteNode(db, DEFAULT_LOCAL_USER_ID, folder.id);
+							const { result, success } = await fetcher(
+								DeleteNodeByIdResponseV1Schema,
+								PUBLIC_API_BASE_URL +
+									`/api/v1/private/nodes/by-id?id=${encodeURIComponent(folder.id)}`,
+								{ method: 'DELETE' }
+							);
+							if (!success) {
+								toastErrors(result.issues);
+								return;
+							}
 							await invalidate(`pwd:${pwd}`);
 						});
 					}

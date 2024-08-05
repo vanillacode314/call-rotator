@@ -10,21 +10,9 @@ async function getListByPath(
 	path: string
 ): Promise<{ list: TList; contacts: TContact[] } | null> {
 	if (!path.startsWith('/')) return null;
-	const rows = (await db.all(sql.raw(GET_NODES_BY_PATH_QUERY(path, userId, false)))) as any[][];
+	const rows = (await db.all(sql.raw(GET_NODES_BY_PATH_QUERY(path, userId, false)))) as TNode[];
 	if (rows[0] === undefined) return null;
-	const { columns } = (await db.run(sql`SELECT
-  *
-FROM
-  nodes
-WHERE
-  1 = 2`)) as { columns: string[] };
-	const mappedRows = rows.map((row) => {
-		return row.reduce((acc, cur, i) => {
-			acc[columns[i]] = cur;
-			return acc;
-		}, {} as TNode);
-	});
-	const node = mappedRows.shift()! as TNode;
+	const node = rows.shift()!;
 	if (!node.listId) return null;
 	return await getListById(db, userId, node.listId);
 }

@@ -28,7 +28,7 @@
 	$actions = [
 		{
 			label: 'Create Contact',
-			icon: 'i-mdi:person-add',
+			icon: 'i-heroicons:user-plus',
 			onclick: createContact
 		}
 	];

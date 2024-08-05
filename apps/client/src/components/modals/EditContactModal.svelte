@@ -23,9 +23,9 @@
 	const clipboard = useClipboard();
 	const fetcher = createFetcher(fetch, {
 		headers: {
-			Authorization: 'Bearer ' + localStorage.getItem('jwtToken'),
 			'Content-Type': 'application/json'
-		}
+		},
+		credentials: 'include'
 	});
 
 	async function onsubmit(e: SubmitEvent) {
@@ -35,19 +35,15 @@
 				e.target as HTMLFormElement,
 				PutContactRequestV1Schema.shape.contact
 			);
-			const [rawDb, db] = await getSQLocalClient();
-			await db.transaction(async (tx) => {
-				await putContact(db, DEFAULT_LOCAL_USER_ID, contact.id, { contact: data });
-				const { result, success } = await fetcher(
-					PutContactResponseV1Schema,
-					PUBLIC_API_BASE_URL + `/api/v1/private/contacts/${contact.id}`,
-					{ method: 'PUT', body: JSON.stringify({ contact: data }) }
-				);
-				if (!success) {
-					toastErrors(result.issues);
-					throw new Error('Failed to update contact');
-				}
-			});
+			const { result, success } = await fetcher(
+				PutContactResponseV1Schema,
+				PUBLIC_API_BASE_URL + `/api/v1/private/contacts/${contact.id}`,
+				{ method: 'PUT', body: JSON.stringify({ contact: data }) }
+			);
+			if (!success) {
+				toastErrors(result.issues);
+				throw new Error('Failed to update contact');
+			}
 			await invalidate(`contact:${contact.id}`);
 		} finally {
 			$editContactModalOpen = false;

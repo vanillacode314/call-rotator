@@ -1,6 +1,6 @@
 <script lang="ts">
 	import '../app.pcss';
-	import 'uno.css';
+	import 'virtual:uno.css';
 	import { ModeWatcher } from 'mode-watcher';
 </script>
 

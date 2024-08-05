@@ -3,7 +3,7 @@
   "version": "1.0.0",
   "main": "index.js",
   "scripts": {
-    "dev": "concurrently \"turbo watch build --filter db\" \"turbo dev --filter client --filter server\"",
+    "dev": "turbo dev",
     "build": "turbo build",
     "format": "turbo format"
   },

@@ -24,14 +24,18 @@
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { DEFAULT_LOCAL_USER_ID, RESERVED_FILE_NAMES } from '$/consts';
 	import { toast } from 'svelte-sonner';
+	import { PostNodeResponseV1Schema } from 'schema/routes/api/v1/nodes/index';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 	$: pwd = decodeURI($page.url.pathname);
-	const fetcher = createFetcher(fetch);
+	const fetcher = createFetcher(fetch, {
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include'
+	});
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {
-			const formData = new FormData(e.target as HTMLFormElement);
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
 			if (RESERVED_FILE_NAMES.includes(name.toLowerCase() as unknown as any)) {
 				toast.error('RESERVED NAME', {
@@ -39,11 +43,18 @@
 				});
 				return;
 			}
-			formData.set('node', JSON.stringify({ name, parent_id: $page.data.node.id, metadata: null }));
-			const [rawDb, db] = await getSQLocalClient();
-			await postNode(db, DEFAULT_LOCAL_USER_ID, {
-				node: { name: name, parentId: $page.data.node.id, listId: null }
-			});
+			const response = await fetcher(
+				PostNodeResponseV1Schema,
+				PUBLIC_API_BASE_URL + '/api/v1/private/nodes',
+				{
+					method: 'POST',
+					body: JSON.stringify({ node: { name, parentId: $page.data.node.id } })
+				}
+			);
+			if (!response.success) {
+				toastErrors(response.result.issues);
+				return;
+			}
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$addFolderModalOpen = false;

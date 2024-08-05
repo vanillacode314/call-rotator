@@ -22,29 +22,25 @@
 	const queue = useTaskQueue();
 	const fetcher = createFetcher(fetch, {
 		headers: {
-			Authorization: 'Bearer ' + localStorage.getItem('jwtToken'),
 			'Content-Type': 'application/json'
-		}
+		},
+		credentials: 'include'
 	});
 
 	export let contact: TContact;
 
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
-			const [rawDb, db] = await getSQLocalClient();
-			await db.transaction(async (tx) => {
-				await deleteContact(tx, DEFAULT_LOCAL_USER_ID, contact.id);
-				const { result, success } = await fetcher(
-					DeleteContactResponseV1Schema,
-					PUBLIC_API_BASE_URL + `/api/v1/private/contacts/${contact.id}`,
-					{ method: 'DELETE' }
-				);
+			const { result, success } = await fetcher(
+				DeleteContactResponseV1Schema,
+				PUBLIC_API_BASE_URL + `/api/v1/private/contacts/${contact.id}`,
+				{ method: 'DELETE' }
+			);
 
-				if (!success) {
-					toastErrors(result.issues);
-					throw new Error('Failed to remove contact');
-				}
-			});
+			if (!success) {
+				toastErrors(result.issues);
+				throw new Error('Failed to remove contact');
+			}
 			await invalidate(`contacts:contacts`);
 		});
 	}

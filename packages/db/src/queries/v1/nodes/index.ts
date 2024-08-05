@@ -1,3 +1,4 @@
+import { eq } from 'drizzle-orm';
 import { type TNode, type TUser } from 'schema/db';
 import { PostNodeRequestV1Schema } from 'schema/routes/api/v1/nodes/index';
 import type { z } from 'zod';
@@ -11,17 +12,33 @@ async function postNode(
 ): Promise<TNode> {
 	if (node.name.endsWith('.list')) {
 		return db.transaction(async () => {
-			const [list] = await db.insert(lists).values({ userId: userId }).returning({ id: lists.id });
 			const [_node] = await db
 				.insert(nodes)
-				.values({ ...node, userId, listId: list.id })
+				.values({ ...node, userId })
+				.onConflictDoUpdate({
+					target: [nodes.name, nodes.userId, nodes.parentId],
+					set: { deleted: false, createdAt: new Date() }
+				})
 				.returning();
+			if (_node.listId === null) {
+				const [list] = await db.insert(lists).values({ userId: userId }).returning({id: lists.id});
+				await db.update(nodes).set({ listId: list.id}).where(eq(nodes.id, _node.id));
+			} else {
+				await db
+					.update(lists)
+					.set({ deleted: false, createdAt: new Date() })
+					.where(eq(lists.id, _node.listId));
+			}
 			return _node;
 		});
 	} else {
 		const [_node] = await db
 			.insert(nodes)
 			.values({ ...node, userId })
+			.onConflictDoUpdate({
+				target: [nodes.name, nodes.userId, nodes.parentId],
+				set: { deleted: false, createdAt: new Date() }
+			})
 			.returning();
 		return _node;
 	}

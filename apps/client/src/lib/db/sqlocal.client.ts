@@ -60,7 +60,7 @@ async function seed(db: SqliteRemoteDatabase, userId = DEFAULT_LOCAL_USER_ID) {
 	if (rows.length === 0)
 		await db
 			.insert(nodes)
-			.values({ name: 'root', parentId: null, listId: null, userId })
+			.values({ id: 0, name: 'root', parentId: null, listId: null, userId })
 			.onConflictDoNothing();
 }
 

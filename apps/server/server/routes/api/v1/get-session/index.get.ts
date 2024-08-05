@@ -4,6 +4,6 @@ export default defineEventHandler(async (event) => {
 	return GetSessionResponseV1Schema.parse({
 		success: true,
 		status: 200,
-		user: await getUser(getHeader(event, 'Authorization'))
+		user: await getUser(getCookie(event, 'jwtToken'))
 	});
 });

@@ -3,6 +3,7 @@
 	import { useActions } from '$/stores/actions';
 	import { cn } from '$/utils/ui';
 	import { useTaskQueue } from '$/stores/task-queue';
+	import { resetDb } from '$/lib/db/sqlocal.db';
 
 	const { actions } = useActions();
 	const { items } = useTaskQueue();
@@ -12,6 +13,7 @@
 
 	async function signout() {
 		localStorage.removeItem('jwtToken');
+		resetDb('database.sqlite3');
 		window.location.reload();
 	}
 </script>
@@ -20,13 +22,13 @@
 	<div class="border-offset-background flex flex-col gap-2">
 		{#each $actions as action}
 			<Button
-				class="flex items-center justify-start gap-2 text-xs font-bold uppercase tracking-wider"
+				class="flex items-end justify-start gap-2"
 				on:click={action.onclick}
 				variant="ghost"
 				type="button"
 			>
+				<span class={cn(action.icon, 'shrink-0 text-2xl')}></span>
 				<span>{action.label}</span>
-				<span class={cn(action.icon, 'shrink-0 text-base')}></span>
 			</Button>
 		{/each}
 	</div>
@@ -43,13 +45,13 @@
 	</ul>
 	<div class="border-offset-background flex flex-col gap-2">
 		<Button
-			class="flex items-center justify-end gap-2 self-end text-xs font-bold uppercase tracking-wider"
+			class="flex items-center justify-end gap-2 self-end font-bold"
 			on:click={signout}
 			variant="ghost"
 			type="button"
 		>
 			<span>Sign Out</span>
-			<span class="i-carbon:logout shrink-0 text-base"></span>
+			<span class="i-heroicons:arrow-right-end-on-rectangle shrink-0 text-3xl"></span>
 		</Button>
 	</div>
 </div>

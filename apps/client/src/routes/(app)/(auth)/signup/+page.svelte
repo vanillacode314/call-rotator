@@ -13,23 +13,20 @@
 	async function onSubmit(event: SubmitEvent) {
 		event.preventDefault();
 		const formData = new FormData(event.target as HTMLFormElement);
-		const response = SignUpResponseV1Schema.parse(
-			await fetch(PUBLIC_API_BASE_URL + '/api/v1/signup', {
-				method: 'POST',
-				headers: {
-					'Content-Type': 'application/json'
-				},
-				body: JSON.stringify(Object.fromEntries(formData)),
-				redirect: 'manual'
-			}).then((res) => res.json())
-		);
-		if (!response.success) {
-			toastErrors(response.result.issues);
+		const response = await fetch(PUBLIC_API_BASE_URL + '/api/v1/signup', {
+			method: 'POST',
+			headers: {
+				'Content-Type': 'application/json'
+			},
+			body: JSON.stringify(Object.fromEntries(formData)),
+			credentials: 'include',
+			redirect: 'manual'
+		});
+		if (response.status >= 399) {
+			const { result, success } = SignUpResponseV1Schema.parse(await response.json());
+			if (!success) toastErrors(result.issues);
 			return;
 		}
-		const { token } = response.result;
-		const user = jwtDecode(token) as TUser;
-		token && localStorage.setItem('jwtToken', token);
 		window.location.reload();
 	}
 

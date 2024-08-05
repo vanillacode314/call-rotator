@@ -30,10 +30,10 @@
 		<span class="grow" />
 		<Button on:click={toggleMode} variant="outline" size="icon">
 			<div
-				class="i-radix-icons:sun rotate-0 scale-100 text-xl transition-all dark:-rotate-90 dark:scale-0"
+				class="i-heroicons:sun rotate-0 scale-100 text-xl transition-all dark:-rotate-90 dark:scale-0"
 			/>
 			<div
-				class="i-radix-icons:moon absolute rotate-90 scale-0 text-xl transition-all dark:rotate-0 dark:scale-100"
+				class="i-heroicons:moon absolute rotate-90 scale-0 text-xl transition-all dark:rotate-0 dark:scale-100"
 			/>
 			<span class="sr-only">Toggle theme</span>
 		</Button>

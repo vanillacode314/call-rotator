@@ -14,22 +14,10 @@ async function getNodeByPath(
 	if (!path.startsWith('/')) return null;
 	const rows = (await db.all(
 		sql.raw(GET_NODES_BY_PATH_QUERY(path, userId, includeChildren))
-	)) as any[][];
+	)) as TNode[];
 	if (rows[0] === undefined) return null;
-	const { columns } = (await db.run(sql`SELECT
-  *
-FROM
-  nodes
-WHERE
-  1 = 2`)) as { columns: string[] };
-	const mappedRows = rows.map((row) => {
-		return row.reduce((acc, cur, i) => {
-			acc[columns[i]] = cur;
-			return acc;
-		}, {} as TNode);
-	});
-	const node = mappedRows.shift()!;
-	return { node, children: mappedRows };
+	const node = rows.shift()!;
+	return { node, children: rows };
 }
 
 export { getNodeByPath };

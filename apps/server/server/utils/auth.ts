@@ -1,9 +1,7 @@
 import jwt from 'jsonwebtoken';
 import { GetSessionResponseV1Schema } from 'schema/routes/api/v1/get-session';
 
-export async function getUser(header: string | null | undefined) {
-	if (!header) return null;
-	const token = header.slice(7);
+export async function getUser(token: string | null | undefined) {
 	if (!token) return null;
 
 	try {

@@ -9,16 +9,21 @@
 	import * as Dialog from '$/components/ui/dialog';
 	import { Input } from '$/components/ui/input';
 	import * as Select from '$/components/ui/select';
-	import { parseFormData } from '$/utils';
+	import { parseFormData, toastErrors } from '$/utils';
 	import { DEFAULT_LOCAL_USER_ID, VALID_FILETYPES } from '$/consts';
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import { createFetcher } from '$/utils/zod';
 	import { postNode } from 'db/queries/v1/nodes/index';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
+	import { PostNodeResponseV1Schema } from 'schema/routes/api/v1/nodes/index';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 	$: pwd = decodeURI($page.url.pathname);
-	const fetcher = createFetcher(fetch);
+	const fetcher = createFetcher(fetch, {
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include'
+	});
 
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
@@ -27,15 +32,23 @@
 				e.target as HTMLFormElement,
 				z.object({ name: z.string(), filetype: z.string() })
 			);
-			const formData = new FormData(e.target as HTMLFormElement);
 			const node = {
 				name: name + filetype,
 				parentId: $page.data.node.id,
 				listId: null
 			};
-			formData.set('node', JSON.stringify(node));
-			const [rawDb, db] = await getSQLocalClient();
-			await postNode(db, DEFAULT_LOCAL_USER_ID, { node });
+			const response = await fetcher(
+				PostNodeResponseV1Schema,
+				PUBLIC_API_BASE_URL + '/api/v1/private/nodes',
+				{
+					method: 'POST',
+					body: JSON.stringify({ node })
+				}
+			);
+			if (!response.success) {
+				toastErrors(response.result.issues);
+				return;
+			}
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$createFileModalOpen = false;

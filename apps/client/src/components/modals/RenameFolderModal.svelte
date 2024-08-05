@@ -16,15 +16,23 @@
 	} from '$/components/ui/dialog';
 	import { Input } from '$/components/ui/input';
 	import { Label } from '$/components/ui/label';
-	import { parseFormData, selectInputById } from '$/utils';
+	import { parseFormData, selectInputById, toastErrors } from '$/utils';
 	import { invalidate } from '$app/navigation';
 	import { page } from '$app/stores';
 	import { putNode } from 'db/queries/v1/nodes/by-id/index';
 	import { useClipboard } from '$/stores/clipboard';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
-	import { DEFAULT_LOCAL_USER_ID } from '$/consts';
+	import { DEFAULT_LOCAL_USER_ID, RESERVED_FILE_NAMES } from '$/consts';
+	import { createFetcher } from '$/utils/zod';
+	import { toast } from 'svelte-sonner';
+	import { PutNodeByIdResponseV1Schema } from 'schema/routes/api/v1/nodes/by-id';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 	const clipboard = useClipboard();
+	const fetcher = createFetcher(fetch, {
+		headers: { 'Content-Type': 'application/json' },
+		credentials: 'include'
+	});
 	$: node = $clipboard.nodes[0]!;
 
 	$: pwd = decodeURI($page.url.pathname);
@@ -32,8 +40,24 @@
 		e.preventDefault();
 		try {
 			const { name } = parseFormData(e.target as HTMLFormElement, z.object({ name: z.string() }));
-			const db = getSQLocalClient();
-			await putNode(db, DEFAULT_LOCAL_USER_ID, node.id, { node: { name } });
+			if (RESERVED_FILE_NAMES.includes(name.toLowerCase() as unknown as any)) {
+				toast.error('RESERVED NAME', {
+					description: `Please choose a different name. The name ${name} is reserved.`
+				});
+				return;
+			}
+			const { result, success } = await fetcher(
+				PutNodeByIdResponseV1Schema,
+				PUBLIC_API_BASE_URL + `/api/v1/private/nodes/by-id?id=${encodeURIComponent(node.id)}`,
+				{
+					method: 'PUT',
+					body: JSON.stringify({ node: { name, parentId: $page.data.node.id } })
+				}
+			);
+			if (!success) {
+				toastErrors(result.issues);
+				return;
+			}
 			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$renameFolderModalOpen = false;

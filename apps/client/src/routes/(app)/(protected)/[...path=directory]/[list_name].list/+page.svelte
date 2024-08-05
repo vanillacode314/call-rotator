@@ -23,20 +23,38 @@
 	import { putList } from 'db/queries/v1/lists/by-id/index';
 	import { toast } from 'svelte-sonner';
 	import { z } from 'zod';
+	import { PostListContactByIdResponseV1Schema } from 'schema/routes/api/v1/lists/by-id/contacts';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { createFetcher } from '$/utils/zod';
+	import { PutListByIdResponseV1Schema } from 'schema/routes/api/v1/lists/by-id';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
+	});
 
 	export let data;
 	$: ({ pwd, list, contacts } = data);
 
 	async function importContact() {
 		const newContacts = await openContactPicker();
+		if (!newContacts) return;
+		if (newContacts.length < 1) return;
 		queueTask(queue, 'Importing Contacts', async () => {
-			const [rawDb, db] = await getSQLocalClient();
-			await postListContactById(db, DEFAULT_LOCAL_USER_ID, list.id, {
-				contactIds: newContacts.map((contact) => contact.id)
-			});
+			const { result, success } = await fetcher(
+				PostListContactByIdResponseV1Schema,
+				PUBLIC_API_BASE_URL +
+					`/api/v1/private/lists/by-id/contacts?id=${encodeURIComponent(list.id)}`,
+				{ method: 'POST', body: JSON.stringify({ contactIds: newContacts.map((c) => c.id) }) }
+			);
+			if (!success) {
+				toastErrors(result.issues);
+				return;
+			}
 			await invalidate(`list:${pwd}`);
 		});
 	}
@@ -60,9 +78,17 @@
 			result.error.errors.forEach((err) => toast.error(err.message));
 			return;
 		}
-		const [rawDb, db] = await getSQLocalClient();
-		await putList(db, DEFAULT_LOCAL_USER_ID, list.id, { list: Object.assign(list, result.data) });
-		toast.success('List updated');
+		// await putList(db, DEFAULT_LOCAL_USER_ID, list.id, { list: Object.assign(list, result.data) });
+		const { result: result2, success } = await fetcher(
+			PutListByIdResponseV1Schema,
+			PUBLIC_API_BASE_URL + `/api/v1/private/lists/by-id?id=${encodeURIComponent(list.id)}`,
+			{ method: 'PUT', body: JSON.stringify({ list: Object.assign(list, result.data) }) }
+		);
+		if (!success) {
+			toastErrors(result2.issues);
+			return;
+		}
+		toast.success('Changes saved');
 		await invalidate(`list:${pwd}`);
 	}
 

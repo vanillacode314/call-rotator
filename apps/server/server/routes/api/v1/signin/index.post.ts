@@ -4,7 +4,7 @@ import { count, eq } from 'drizzle-orm';
 import jwt from 'jsonwebtoken';
 import { ApiErrorCodeSchema } from 'schema/api';
 import { userSchema } from 'schema/db';
-import { SignInRequestV1Schema, SignInResponseV1Schema } from 'schema/routes/api/v1/signin';
+import { SignInRequestV1Schema } from 'schema/routes/api/v1/signin';
 import { db } from '~/utils/db';
 
 export default defineEventHandler(async (event) => {
@@ -61,5 +61,13 @@ export default defineEventHandler(async (event) => {
 	const token = jwt.sign(userSchema.pick({ email: true, id: true }).parse(user), env.AUTH_SECRET, {
 		expiresIn: 365 * 24 * 60 * 60
 	});
-	return SignInResponseV1Schema.parse({ success: true, status: 200, result: { token } });
+	setCookie(event, 'jwtToken', token, {
+		maxAge: 365 * 24 * 60 * 60,
+		httpOnly: true,
+		path: '/',
+		secure: true,
+		sameSite: 'lax'
+	});
+	const origin = getRequestHeader(event, 'origin');
+	return sendRedirect(event, origin + '/', 303);
 });

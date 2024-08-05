@@ -3,7 +3,7 @@ import { ApiErrorCodeSchema } from 'schema/api';
 export default defineEventHandler(async (event) => {
 	const url = getRequestURL(event);
 	const isPrivate = url.pathname.includes('private');
-	const user = await getUser(getHeader(event, 'Authorization'));
+	const user = await getUser(getCookie(event, 'jwtToken'));
 	// @ts-ignore: assigning null here is fine since it'll return 401 if user is null for private route and public routes should not be using event.context.user
 	event.context.user = user;
 

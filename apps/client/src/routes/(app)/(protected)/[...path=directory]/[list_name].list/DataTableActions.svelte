@@ -14,18 +14,29 @@
 	import { page } from '$app/stores';
 	import { invalidate } from '$app/navigation';
 	import type { TList, TContact } from 'schema/db';
+	import { DeleteListContactByIdResponseV1Schema } from 'schema/routes/api/v1/lists/by-id/contacts/by-id';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
 	const clipboard = useClipboard();
 	const queue = useTaskQueue();
-	const fetcher = createFetcher(fetch);
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
+	});
 
 	export let contact: TContact;
 	export let list: TList;
 
 	function removeContactFromList() {
 		queueTask(queue, 'Removing', async () => {
-			const [rawDb, db] = await getSQLocalClient();
-			await deleteListContactById(db, list.id, [contact.id]);
+			const { result, success } = await fetcher(
+				DeleteListContactByIdResponseV1Schema,
+				PUBLIC_API_BASE_URL +
+					`/api/v1/private/lists/by-id/contacts/by-id?listId=${encodeURIComponent(list.id)}&contactIds=${encodeURIComponent(contact.id)}`,
+				{ method: 'DELETE' }
+			);
 			await invalidate(`list:${$page.data.pwd}`);
 		});
 	}

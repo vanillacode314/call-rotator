@@ -1,3 +1,9 @@
 export default eventHandler((event) => {
-	handleCors(event, { origin: '*', methods: '*', preflight: { statusCode: 204 } });
+	const origin = getHeader(event, 'origin');
+	handleCors(event, {
+		origin: origin ? [origin] : 'null',
+		methods: ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
+		credentials: true,
+		preflight: { statusCode: 204 }
+	});
 });

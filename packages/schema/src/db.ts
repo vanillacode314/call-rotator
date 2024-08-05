@@ -8,14 +8,14 @@ const userSchema = z.object({
 	email: z.string().email(),
 	password: z.string(),
 	emailVerified: timestamp().nullable(),
-	createdAt: z.date(),
-	updatedAt: z.date()
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date()
 });
 
 const verificationTokenSchema = z.object({
 	token: z.string(),
 	identifier: userSchema.shape.id,
-	expires: z.date()
+	expires: z.coerce.date()
 });
 
 const nodeSchema = z.object({
@@ -24,18 +24,18 @@ const nodeSchema = z.object({
 	parentId: id().nullable(),
 	listId: id().nullable(),
 	userId: id(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
 	deleted: z.boolean()
 });
 
 const listSchema = z.object({
 	id: id(),
 	cycleDurationDays: z.number().int().positive(),
-	startDate: z.date(),
+	startDate: z.coerce.date(),
 	userId: id(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
 	deleted: z.boolean()
 });
 
@@ -46,16 +46,16 @@ const contactSchema = z.object({
 	notes: z.string(),
 	tags: z.string().array().default(Array),
 	userId: id(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
 	deleted: z.boolean()
 });
 
 const listContactAssociationSchema = z.object({
 	listId: id(),
 	contactId: id(),
-	createdAt: z.date(),
-	updatedAt: z.date(),
+	createdAt: z.coerce.date(),
+	updatedAt: z.coerce.date(),
 	deleted: z.boolean()
 });
 
