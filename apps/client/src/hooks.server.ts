@@ -11,7 +11,7 @@ export const handle: Handle = async ({ event, resolve }) => {
 			redirect(307, '/signin');
 		}
 	}
-	const fetcher = createFetcher(event.fetch, {
+	const fetcher = createFetcher(fetch, {
 		headers: {
 			'Content-Type': 'application/json',
 			Cookie: `jwtToken=${token}`
