@@ -17,9 +17,18 @@
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { cn } from '$/utils/ui';
 	import { type TNode } from 'schema/db';
+	import { PutNodeByIdResponseV1Schema } from 'schema/routes/api/v1/nodes/by-id';
+	import { PUBLIC_API_BASE_URL } from '$env/static/public';
+	import { toastErrors } from '$/utils';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
+	const fetcher = createFetcher(fetch, {
+		headers: {
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
+	});
 
 	export let data;
 
@@ -138,8 +147,19 @@
 								return;
 							}
 							queueTask(queue, 'Moving', async () => {
-								const [_, db] = await getSQLocalClient();
-								await putNode(db, DEFAULT_LOCAL_USER_ID, id, { node: { parentId: folder.id } });
+								const { result, success } = await fetcher(
+									PutNodeByIdResponseV1Schema,
+									PUBLIC_API_BASE_URL + `/api/v1/private/nodes/by-id?id=${encodeURIComponent(id)}`,
+									{
+										method: 'PUT',
+										body: JSON.stringify({ node: { parentId: folder.id } })
+									}
+								);
+								if (!success) {
+									toastErrors(result.issues);
+									return;
+								}
+								toast.success('Moved successfully');
 								await invalidate(`pwd:${pwd}`);
 							});
 						}}
