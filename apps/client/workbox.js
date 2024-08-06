@@ -6,6 +6,7 @@ import { generateSW } from 'workbox-build';
 generateSW({
 	globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 	swDest: 'build/sw.js',
+	navigateFallback: '/index.html',
 	globDirectory: 'build',
 	skipWaiting: true,
 	sourcemap: false
