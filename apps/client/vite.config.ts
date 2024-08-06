@@ -29,6 +29,16 @@ export default defineConfig({
 		Unocss(),
 		sveltekit()
 	],
+	server: process.env.NETLIFY
+		? {}
+		: {
+				proxy: {
+					'/api': {
+						target: 'http://localhost:3001',
+						changeOrigin: true
+					}
+				}
+			},
 	clearScreen: false,
 	test: {
 		include: ['src/**/*.{test,spec}.{js,ts}']
