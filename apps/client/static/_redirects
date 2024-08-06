@@ -1,1 +1,2 @@
-/api/* https://api-callrotator.netlify.app/api/:splat 200
+/api/*  https://api-callrotator.netlify.app/api/:splat  200!
+
