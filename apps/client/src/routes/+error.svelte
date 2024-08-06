@@ -18,16 +18,6 @@
 					<span class="i-carbon:home"></span>
 					Home
 				</Button>
-				<Button
-					on:click={() => {
-						resetDb('database.sqlite3');
-					}}
-					size="lg"
-					class="flex h-14 gap-2 text-xl"
-				>
-					<span class="i-carbon:reset"></span>
-					Reset Local Database
-				</Button>
 			</h1>
 		</div>
 	</main>

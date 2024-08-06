@@ -159,8 +159,8 @@
 									toastErrors(result.issues);
 									return;
 								}
-								toast.success('Moved successfully');
 								await invalidate(`pwd:${pwd}`);
+								toast.success('Moved successfully');
 							});
 						}}
 						draggable="true"
