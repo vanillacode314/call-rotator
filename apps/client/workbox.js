@@ -7,7 +7,6 @@ generateSW({
 	globPatterns: ['**/*.{js,css,html,ico,png,svg}'],
 	swDest: 'build/sw.js',
 	globDirectory: 'build',
-	navigateFallback: '/index.html',
 	skipWaiting: true,
 	sourcemap: false
 }).then(({ count, size, warnings }) => {
