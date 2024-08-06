@@ -6,7 +6,7 @@
     "dev": "vite dev",
     "build:sveltekit": "vite build",
     "build:sw": "node workbox.js && cp build/sw.js .svelte-kit/output/client/sw.js && cp build/workbox-*.js .svelte-kit/output/client/",
-    "build": "npm run build:sveltekit",
+    "build": "npm run build:sveltekit && npm run build:sw",
     "preview": "vite preview",
     "test": "npm run test:integration && npm run test:unit",
     "check": "svelte-kit sync && svelte-check --tsconfig ./tsconfig.json",
