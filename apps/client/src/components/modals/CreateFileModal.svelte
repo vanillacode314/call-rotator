@@ -19,7 +19,7 @@
 	import { PostNodeResponseV1Schema } from 'schema/routes/api/v1/nodes/index';
 	import { PUBLIC_API_BASE_URL } from '$env/static/public';
 
-	$: pwd = decodeURI($page.url.pathname);
+	$: pwd = $page.data.pwd
 	const fetcher = createFetcher(fetch, {
 		headers: { 'Content-Type': 'application/json' },
 		credentials: 'include'

@@ -25,9 +25,7 @@
 		},
 		credentials: 'include'
 	});
-	export let file: TNode;
-
-	$: pwd = decodeURI($page.url.pathname);
+	export let file: TNode, pwd: string;
 </script>
 
 <ContextMenu>

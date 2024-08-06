@@ -34,7 +34,7 @@
 		credentials: 'include'
 	});
 
-	$: pwd = decodeURI($page.url.pathname);
+	$: pwd = $page.data.pwd
 	$: node = $clipboard.nodes[0]!;
 
 	async function onsubmit(e: SubmitEvent) {

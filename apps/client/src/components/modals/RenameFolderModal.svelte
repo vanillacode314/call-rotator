@@ -35,7 +35,7 @@
 	});
 	$: node = $clipboard.nodes[0]!;
 
-	$: pwd = decodeURI($page.url.pathname);
+	$: pwd = $page.data.pwd
 	async function onsubmit(e: SubmitEvent) {
 		e.preventDefault();
 		try {

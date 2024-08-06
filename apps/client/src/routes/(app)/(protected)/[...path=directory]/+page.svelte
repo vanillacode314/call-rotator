@@ -16,6 +16,7 @@
 	import { page } from '$app/stores';
 	import { getSQLocalClient } from '$/lib/db/sqlocal.client';
 	import { cn } from '$/utils/ui';
+	import { type TNode } from 'schema/db';
 
 	const { actions } = useActions();
 	const queue = useTaskQueue();
@@ -104,7 +105,7 @@
 			class="grid h-full content-start items-start gap-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4"
 		>
 			{#each folders as folder}
-				<ContextMenuFolder {folder}>
+				<ContextMenuFolder {folder} {pwd}>
 					<li
 						class="grid"
 						on:dragover={(event) => {
@@ -137,7 +138,7 @@
 								return;
 							}
 							queueTask(queue, 'Moving', async () => {
-								const [rawDb, db] = await getSQLocalClient();
+								const [_, db] = await getSQLocalClient();
 								await putNode(db, DEFAULT_LOCAL_USER_ID, id, { node: { parentId: folder.id } });
 								await invalidate(`pwd:${pwd}`);
 							});
@@ -163,7 +164,7 @@
 				</ContextMenuFolder>
 			{/each}
 			{#each files as file}
-				<ContextMenuFile {file}>
+				<ContextMenuFile {file} {pwd}>
 					<li
 						class="grid"
 						draggable="true"
