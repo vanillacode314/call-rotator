@@ -66,7 +66,6 @@ export default defineEventHandler(async (event) => {
 		httpOnly: true,
 		path: '/',
 		secure: true,
-		sameSite: 'none'
 	});
 	const origin = getRequestHeader(event, 'origin');
 	return sendRedirect(event, origin + '/', 303);

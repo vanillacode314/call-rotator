@@ -64,8 +64,7 @@ export default defineEventHandler(async (event) => {
 		maxAge: 365 * 24 * 60 * 60,
 		httpOnly: true,
 		secure: true,
-		path: '/',
-		sameSite: 'none'
+		path: '/'
 	});
 	const origin = getRequestHeader(event, 'origin');
 	return sendRedirect(event, origin + '/', 303);
