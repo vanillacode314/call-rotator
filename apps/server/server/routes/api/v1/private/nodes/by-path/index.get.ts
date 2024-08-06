@@ -28,13 +28,21 @@ export default defineEventHandler(async (event) => {
 	}
 
 	return await db.transaction(async (tx) => {
-		const nodes = await getNodeByPath(tx, event.context.user.id, result.data.path, {
+		const data = await getNodeByPath(tx, event.context.user.id, result.data.path, {
 			...result.data
 		});
+		if (data === null) {
+			setResponseStatus(event, 404);
+			return GetNodesByPathResponseV1Schema.parse({
+				success: false,
+				status: 404,
+				result: { nodes: [], children: [] }
+			});
+		}
 		return GetNodesByPathResponseV1Schema.parse({
 			success: true,
 			status: 200,
-			result: { nodes }
+			result: data
 		});
 	});
 });

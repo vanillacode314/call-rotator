@@ -159,7 +159,7 @@
 									toastErrors(result.issues);
 									return;
 								}
-								await invalidate(`pwd:${encodeURI(pwd)}`);
+								await invalidate(`pwd:${pwd}`);
 								toast.success('Moved successfully');
 							});
 						}}

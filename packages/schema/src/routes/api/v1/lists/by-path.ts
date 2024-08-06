@@ -9,7 +9,7 @@ const GetListByPathResponseV1Schema = z.discriminatedUnion('success', [
 		success: z.literal(true),
 		result: z.object({
 			list: listSchema,
-			children: contactSchema.array()
+			contacts: contactSchema.array()
 		})
 	}),
 	ErrorResponseV1Schema

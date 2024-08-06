@@ -16,6 +16,9 @@ async function getNodeByPath(
 		sql.raw(GET_NODES_BY_PATH_QUERY(path, userId, includeChildren))
 	)) as TNode[];
 	if (rows[0] === undefined) return null;
+	for (const row of rows) {
+		row.deleted = Boolean(row.deleted);
+	}
 	const node = rows.shift()!;
 	return { node, children: rows };
 }

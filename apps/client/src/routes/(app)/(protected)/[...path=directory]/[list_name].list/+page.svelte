@@ -55,7 +55,7 @@
 				toastErrors(result.issues);
 				return;
 			}
-			await invalidate(`list:${encodeURI(pwd)}`);
+			await invalidate(`list:${pwd}`);
 		});
 	}
 
@@ -89,7 +89,7 @@
 			return;
 		}
 		toast.success('Changes saved');
-		await invalidate(`list:${encodeURI(pwd)}`);
+		await invalidate(`list:${pwd}`);
 	}
 
 	function validateCycleDurationDays(event: Event) {

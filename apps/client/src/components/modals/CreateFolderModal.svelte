@@ -55,7 +55,7 @@
 				toastErrors(response.result.issues);
 				return;
 			}
-			await invalidate(`pwd:${encodeURI(pwd)}`);
+			await invalidate(`pwd:${pwd}`);
 		} finally {
 			$addFolderModalOpen = false;
 		}

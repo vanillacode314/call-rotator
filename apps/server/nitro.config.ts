@@ -9,6 +9,9 @@ export default defineNitroConfig({
 			target: 'esnext'
 		}
 	},
+	devServer: {
+		watch: ['node_modules/db', 'node_modules/schema']
+	},
 	alias: {
 		'~schema': path.resolve(__dirname, 'node_modules/schema/src'),
 		'~db': path.resolve(__dirname, 'node_modules/db/src')
