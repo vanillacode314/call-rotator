@@ -49,7 +49,7 @@
 				toastErrors(response.result.issues);
 				return;
 			}
-			await invalidate(`pwd:${pwd}`);
+			await invalidate(`pwd:${encodeURI(pwd)}`);
 		} finally {
 			$createFileModalOpen = false;
 		}

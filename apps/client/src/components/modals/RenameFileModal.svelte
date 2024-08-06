@@ -62,7 +62,7 @@
 				toastErrors(result.issues);
 				return;
 			}
-			await invalidate(`pwd:${pwd}`);
+			await invalidate(`pwd:${encodeURI(pwd)}`);
 		} finally {
 			$renameFileModalOpen = false;
 		}
