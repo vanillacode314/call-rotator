@@ -9,9 +9,6 @@ export default defineNitroConfig({
 			target: 'esnext'
 		}
 	},
-	routeRules: {
-		'/api/**': { cors: true }
-	},
 	devServer: {
 		watch: ['node_modules/db', 'node_modules/schema']
 	},

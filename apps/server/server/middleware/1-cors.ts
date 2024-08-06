@@ -1,5 +1,4 @@
 export default eventHandler((event) => {
-	const origin = getHeader(event, 'origin');
 	handleCors(event, {
 		origin: '*',
 		methods: ['HEAD', 'GET', 'POST', 'PUT', 'PATCH', 'DELETE'],
