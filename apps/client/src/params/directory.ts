@@ -1,5 +1,6 @@
 import type { ParamMatcher } from '@sveltejs/kit';
 
-const match: ParamMatcher = (param) =>
-	(param === '' || !/^[\w\s/-]+\.[\w\s]+$/.test(param)) && !param.startsWith('api/');
-export { match };
+export const match: ParamMatcher = (param) => {
+	if (param.startsWith('api/')) return false;
+	return param === '' || !/^[\w\s/-]+\.[\w\s]+$/.test(param);
+};
