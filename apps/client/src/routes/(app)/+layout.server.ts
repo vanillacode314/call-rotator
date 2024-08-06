@@ -11,11 +11,11 @@ export const load: LayoutServerLoad = async (event) => {
 			redirect(307, '/signin');
 		}
 	}
-	const fetcher = createFetcher(fetch, {
+	const fetcher = createFetcher(event.fetch, {
 		headers: {
-			'Content-Type': 'application/json',
-			Cookie: `jwtToken=${token}`
-		}
+			'Content-Type': 'application/json'
+		},
+		credentials: 'include'
 	});
 	const { user } = await fetcher(
 		GetSessionResponseV1Schema,
